@@ -1,0 +1,284 @@
+/* WoWSims Mobile Responsive - 移动端适配 */
+
+/* === 全局基础 === */
+@media (max-width: 768px) {
+  /* 页面基础 */
+  html, body {
+    font-size: 14px !important;
+    overflow-x: hidden !important;
+  }
+
+  /* 导航栏优化 */
+  .navbar {
+    padding: 0.25rem 0.5rem !important;
+    flex-wrap: nowrap !important;
+  }
+  
+  .navbar-brand-container {
+    min-width: 0 !important;
+  }
+  
+  .wowsims-title {
+    font-size: 1.1rem !important;
+  }
+  
+  .expansion-title {
+    font-size: 0.75rem !important;
+  }
+
+  .wowsims-logo {
+    width: 32px !important;
+    height: 32px !important;
+  }
+
+  /* 首页英雄区域 */
+  .homepage-image {
+    min-height: 120px !important;
+    background-size: cover !important;
+  }
+
+  .homepage-header-container {
+    padding: 0 0.5rem !important;
+  }
+
+  /* 主容器 */
+  .container {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+    max-width: 100% !important;
+  }
+
+  /* === 配装页面布局 === */
+  /* 左侧面板（职业选择/设置）在移动端折叠 */
+  .sim-ui-container {
+    flex-direction: column !important;
+  }
+
+  .left-column,
+  .right-column {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  /* Tab面板优化 */
+  .tab-panel {
+    padding: 0.5rem !important;
+  }
+
+  .nav-tabs {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+  }
+
+  .nav-tabs::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .nav-tabs .nav-link {
+    white-space: nowrap !important;
+    font-size: 0.8rem !important;
+    padding: 0.4rem 0.6rem !important;
+  }
+
+  /* === 装备选择器 === */
+  /* 装备列表改为卡片式 */
+  .gear-picker-root {
+    padding: 0.25rem !important;
+  }
+
+  .item-picker-root {
+    min-width: 0 !important;
+  }
+
+  .gear-picker-row {
+    flex-direction: column !important;
+    gap: 0.25rem !important;
+  }
+
+  .gear-picker-slot {
+    width: 100% !important;
+    margin-bottom: 2px !important;
+  }
+
+  /* 装备选择下拉列表优化 */
+  .item-list, 
+  .fuzzy-search-list {
+    max-height: 200px !important;
+    font-size: 13px !important;
+  }
+
+  .item-list-item,
+  .fuzzy-search-list-item {
+    padding: 6px 8px !important;
+    min-height: 36px !important;
+  }
+
+  /* === 属性面板 === */
+  .character-stats-root {
+    font-size: 0.8rem !important;
+    padding: 0.25rem !important;
+  }
+
+  .stat-row {
+    padding: 2px 0 !important;
+  }
+
+  /* === 天赋面板 === */
+  .talents-root {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .talent-tree {
+    min-width: 250px !important;
+  }
+
+  /* === 模拟按钮 === */
+  .simulate-button-root {
+    width: 100% !important;
+    position: sticky !important;
+    bottom: 0 !important;
+    z-index: 100 !important;
+    background: var(--bs-body-bg, #1b2838) !important;
+    padding: 0.5rem !important;
+    border-top: 1px solid rgba(255,255,255,0.1) !important;
+  }
+
+  .simulate-button {
+    width: 100% !important;
+    font-size: 1rem !important;
+    padding: 0.6rem !important;
+  }
+
+  /* === 模拟结果 === */
+  .results-sim {
+    font-size: 0.8rem !important;
+  }
+
+  .dps-bar-root {
+    height: 18px !important;
+    font-size: 11px !important;
+  }
+
+  /* === 表格优化 === */
+  table {
+    font-size: 0.75rem !important;
+  }
+
+  .table-responsive {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  /* === 输入框和按钮触摸优化 === */
+  input, select, textarea, button {
+    min-height: 36px !important;
+    font-size: 14px !important; /* 防止iOS自动缩放 */
+  }
+
+  .btn {
+    padding: 0.4rem 0.8rem !important;
+    min-height: 36px !important;
+  }
+
+  .form-control {
+    padding: 0.4rem 0.6rem !important;
+  }
+
+  /* === 对话框/模态框 === */
+  .modal-dialog {
+    margin: 0.5rem !important;
+    max-width: calc(100% - 1rem) !important;
+  }
+
+  .modal-body {
+    padding: 0.75rem !important;
+    max-height: 70vh !important;
+    overflow-y: auto !important;
+  }
+
+  /* === 工具提示 === */
+  .tooltip-inner {
+    max-width: 280px !important;
+    font-size: 12px !important;
+    text-align: left !important;
+  }
+
+  /* === 首页职业选择 === */
+  .class-selector {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .class-selector-button {
+    width: 100% !important;
+    margin: 0.25rem 0 !important;
+  }
+
+  /* === 侧边栏/面板可滚动 === */
+  .left-sidebar,
+  .right-sidebar {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    max-height: calc(100vh - 60px) !important;
+  }
+
+  /* === 图标和装饰 === */
+  .icon-picker {
+    max-width: 100% !important;
+    flex-wrap: wrap !important;
+  }
+
+  /* === Detailed Results 优化 === */
+  .detailed-results-root {
+    padding: 0.25rem !important;
+  }
+
+  .apexcharts-canvas {
+    width: 100% !important;
+  }
+}
+
+/* === 超小屏幕（iPhone SE等）=== */
+@media (max-width: 375px) {
+  html {
+    font-size: 12px !important;
+  }
+
+  .nav-tabs .nav-link {
+    font-size: 0.7rem !important;
+    padding: 0.3rem 0.4rem !important;
+  }
+  
+  .gear-picker-slot {
+    padding: 2px !important;
+  }
+}
+
+/* === 安全区域适配（刘海屏） === */
+@supports (padding: env(safe-area-inset-top)) {
+  .navbar {
+    padding-top: env(safe-area-inset-top) !important;
+  }
+  
+  .simulate-button-root {
+    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom)) !important;
+  }
+}
+
+/* === 深色模式优化（手机OLED） === */
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #0d1117 !important;
+  }
+}
+
+/* === 添加"添加到主屏幕"图标提示 === */
+@media (display-mode: standalone) {
+  .navbar {
+    padding-top: env(safe-area-inset-top, 0) !important;
+  }
+}

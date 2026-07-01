@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>WoWSims WOTLK 模拟器</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#1a1f2e">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/x-icon" href="/wotlk/assets/favicon_io/favicon.ico">
+    <link rel="apple-touch-icon" href="/wotlk/assets/favicon_io/apple-touch-icon.png">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #0d1117 100%);
+            color: #c9d1d9;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            min-height: 100vh;
+            padding: env(safe-area-inset-top, 1rem) env(safe-area-inset-right, 0.5rem) env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0.5rem);
+        }
+        .container { max-width: 500px; margin: 0 auto; padding: 1rem 0.5rem; }
+        h1 {
+            text-align: center; font-size: 1.8rem; color: #f0c040;
+            margin-bottom: 0.3rem; text-shadow: 0 0 20px rgba(240,192,64,0.3);
+        }
+        .subtitle { text-align: center; color: #8b949e; margin-bottom: 1.5rem; font-size: 0.85rem; }
+        .install-hint {
+            display: none; text-align: center; background: rgba(240,192,64,0.1);
+            border: 1px solid rgba(240,192,64,0.3); border-radius: 8px;
+            padding: 0.6rem; margin-bottom: 1rem; font-size: 0.8rem; color: #f0c040;
+        }
+        .class-section { margin-bottom: 1rem; }
+        .class-title {
+            font-size: 0.8rem; color: #8b949e; text-transform: uppercase;
+            letter-spacing: 1px; margin-bottom: 0.4rem; padding-left: 0.3rem;
+        }
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.4rem; }
+        .spec-btn {
+            display: flex; align-items: center; justify-content: center;
+            padding: 0.7rem 0.5rem; background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;
+            color: #c9d1d9; text-decoration: none; font-size: 0.8rem;
+            transition: all 0.2s; min-height: 48px; text-align: center;
+        }
+        .spec-btn:active { transform: scale(0.95); background: rgba(255,255,255,0.1); }
+        .spec-btn:hover { border-color: #f0c040; color: #f0c040; }
+        .spec-btn.dps { border-left: 3px solid #c41e3a; }
+        .spec-btn.tank { border-left: 3px solid #4a90d9; }
+        .spec-btn.healer { border-left: 3px solid #00cc66; }
+        .raid-btn {
+            display: flex; align-items: center; justify-content: center;
+            padding: 0.8rem; background: rgba(240,192,64,0.08);
+            border: 1px solid rgba(240,192,64,0.3); border-radius: 8px;
+            color: #f0c040; text-decoration: none; font-size: 0.9rem;
+            margin-top: 0.5rem; min-height: 50px;
+        }
+        .raid-btn:active { transform: scale(0.95); }
+        .footer { text-align: center; margin-top: 1.5rem; color: #484f58; font-size: 0.7rem; }
+        @media (max-width: 360px) {
+            .grid { grid-template-columns: repeat(2, 1fr); gap: 0.3rem; }
+            .spec-btn { padding: 0.5rem 0.3rem; font-size: 0.7rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>WoWSims</h1>
+        <p class="subtitle">WOTLK 配装模拟器 · 离线可用</p>
+        
+        <div class="install-hint" id="installHint">
+            点击菜单「添加到主屏幕」可获得App体验
+        </div>
+
+        <!-- 死亡骑士 -->
+        <div class="class-section">
+            <div class="class-title">死亡骑士</div>
+            <div class="grid">
+                <a class="spec-btn dps" href="/wotlk/deathknight/">邪恶DK</a>
+                <a class="spec-btn tank" href="/wotlk/tank_deathknight/">鲜血T</a>
+            </div>
+        </div>
+
+        <!-- 德鲁伊 -->
+        <div class="class-section">
+            <div class="class-title">德鲁伊</div>
+            <div class="grid">
+                <a class="spec-btn dps" href="/wotlk/balance_druid/">平衡德</a>
+                <a class="spec-btn dps" href="/wotlk/feral_druid/">猫德</a>
+                <a class="spec-btn tank" href="/wotlk/feral_tank_druid/">熊T</a>
+                <a class="spec-btn healer" href="/wotlk/restoration_druid/">奶德</a>
+            </div>
+        </div>
+
+        <!-- 猎人 -->
+        <div class="class-section">
+            <div class="class-title">猎人</div>
+            <div class="grid">
+                <a class="spec-btn dps" href="/wotlk/hunter/">射击猎</a>
+            </div>
+        </div>
+
+        <!-- 法师 -->
+        <div class="class-section">
+            <div class="class-title">法师</div>
+            <div class="grid">
+                <a class="spec-btn dps" href="/wotlk/mage/">法师</a>
+            </div>
+        </div>
+
+        <!-- 圣骑士 -->
+        <div class="class-section">
+            <div class="class-title">圣骑士</div>
+            <div class="grid">
+                <a class="spec-btn dps" href="/wotlk/retribution_paladin/">惩戒骑</a>
+                <a class="spec-btn tank" href="/wotlk/protection_paladin/">防骑</a>
+                <a class="spec-btn healer" href="/wotlk/holy_paladin/">奶骑</a>
+            </div>
+        </div>
+
+        <!-- 牧师 -->
+        <div class="class-section">
+            <div class="class-title">牧师</div>
+            <div class="grid">
+                <a class="spec-btn dps" href="/wotlk/shadow_priest/">暗牧</a>
+                <a class="spec-btn healer" href="/wotlk/healing_priest/">戒律/神牧</a>
+            </div>
+        </div>
+
+        <!-- 盗贼 -->
+        <div class="class-section">
+            <div class="class-title">盗贼</div>
+            <div class="grid">
+                <a class="spec-btn dps" href="/wotlk/rogue/">刺杀贼</a>
+            </div>
+        </div>
+
+        <!-- 萨满 -->
+        <div class="class-section">
+            <div class="class-title">萨满</div>
+            <div class="grid">
+                <a class="spec-btn dps" href="/wotlk/elemental_shaman/">元素萨</a>
+                <a class="spec-btn dps" href="/wotlk/enhancement_shaman/">增强萨</a>
+                <a class="spec-btn healer" href="/wotlk/restoration_shaman/">奶萨</a>
+            </div>
+        </div>
+
+        <!-- 术士 -->
+        <div class="class-section">
+            <div class="class-title">术士</div>
+            <div class="grid">
+                <a class="spec-btn dps" href="/wotlk/warlock/">术士</a>
+            </div>
+        </div>
+
+        <!-- 战士 -->
+        <div class="class-section">
+            <div class="class-title">战士</div>
+            <div class="grid">
+                <a class="spec-btn dps" href="/wotlk/warrior/">狂暴战</a>
+                <a class="spec-btn tank" href="/wotlk/protection_warrior/">防战</a>
+            </div>
+        </div>
+
+        <a class="raid-btn" href="/wotlk/raid/">🛡️ 团队模拟</a>
+
+        <div class="footer">
+            <p>基于 WoWSims 开源项目</p>
+            <p>横屏体验更佳 · 支持添加到主屏幕</p>
+        </div>
+    </div>
+
+    <script>
+        // Show install hint on iOS
+        if (/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream) {
+            if (!window.navigator.standalone) {
+                document.getElementById('installHint').style.display = 'block';
+                document.getElementById('installHint').textContent = '点击底部分享按钮 → "添加到主屏幕" 获得App体验';
+            }
+        }
+        // Register service worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(r => console.log('SW registered, scope:', r.scope))
+                .catch(e => console.log('SW registration failed:', e));
+        }
+    </script>
+</body>
+</html>
