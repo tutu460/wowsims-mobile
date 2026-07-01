@@ -1,4 +1,4 @@
-const CACHE_NAME = 'wowsims-v4';
+const CACHE_NAME = 'wowsims-v5';
 
 const CORE_ASSETS = [
   '/wowsims-mobile/',
