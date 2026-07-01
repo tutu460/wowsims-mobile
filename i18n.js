@@ -1,54 +1,4 @@
-<!doctype html>
-<html>
-	<head>
-		<meta name="apple-mobile-web-app-capable" content="yes">
-		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-		<meta name="theme-color" content="#1a1f2e">
-		<link rel="manifest" href="/wowsims-mobile/manifest.json">
-		<link rel="stylesheet" href="/wowsims-mobile/mobile.css">
-		<title>WOTLK Balance Druid Simulator</title>
-		<meta charset="utf-8" />
-
-		<link rel="icon" type="image/x-icon" href="/wowsims-mobile/assets/favicon_io/favicon.ico" />
-
-		<meta name="description" content="Simulations for World of Warcraft® Classic Wrath of the Lich King." />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-		<link rel="preload" href="/wowsims-mobile/assets/database/db.json" as="fetch" />
-
-		
-		<link
-			rel="stylesheet"
-			href="/wowsims-mobile/assets/vendor/fontawesome.css"
-
-			crossorigin="anonymous"
-			referrerpolicy="no-referrer" />
-
-		<script src="/wowsims-mobile/assets/vendor/jquery.min.js"></script>
-		<script
-			src="/wowsims-mobile/assets/vendor/jquery.tablesorter.min.js"
-
-			crossorigin="anonymous"
-			referrerpolicy="no-referrer"></script>
-		<script src="/wowsims-mobile/assets/vendor/apexcharts.js"></script>
-		
-		
-		<!-- Global site tag (gtag.js) - Google Analytics -->
-		
-		<script type="module" crossorigin src="/wowsims-mobile/bundle/index-3f8649d8.entry.js"></script>
-		<link rel="modulepreload" crossorigin href="/wowsims-mobile/bundle/index-6d46f689.chunk.js">
-		<link rel="modulepreload" crossorigin href="/wowsims-mobile/bundle/detailed_results-65966de5.chunk.js">
-		<link rel="modulepreload" crossorigin href="/wowsims-mobile/bundle/preset_utils-09dec096.chunk.js">
-		<link rel="modulepreload" crossorigin href="/wowsims-mobile/bundle/sim-a9ecb615.chunk.js">
-		<link rel="stylesheet" href="/wowsims-mobile/bundle/index-fd23c7e7.style.css">
-		<link rel="stylesheet" href="/wowsims-mobile/mobile.css">
-	<meta name="apple-mobile-web-app-capable" content="yes">
-	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-	<meta name="theme-color" content="#0d1117">
-	<link rel="stylesheet" href="/wowsims-mobile/icon-fallback.css">
-</head>
-		<script>if("serviceWorker"in navigator){navigator.serviceWorker.register("/wowsims-mobile/sw.js").then(r=>{console.log("SW registered, scope:",r.scope)})}</script>
-	<body id="bootstrap-overrides"><script>// WoWSims Mobile 中文界面 + 图标修复
+// WoWSims Mobile 中文界面 + 图标修复
 (function() {
 'use strict';
 
@@ -435,13 +385,3 @@ if (document.readyState === 'loading') {
 
 console.log('[WoWSims Mobile] 中文界面 + 图标修复已加载');
 })();
-</script>
-</body>
-	<!-- Load wowhead scripts after done loading everything else -->
-	<script>
-		const whTooltips = { colorLinks: true };
-	</script>
-	<script src="https://wow.zamimg.com/js/tooltips.js"></script>
-	<!--<script>const aowow_tooltips = {colorlinks: true}</script>
-	<script type="text/javascript" src="https://wotlk.evowow.com/static/widgets/power.js"></script>-->
-</html>

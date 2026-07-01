@@ -1,4 +1,4 @@
-const CACHE_NAME = 'wowsims-v5';
+const CACHE_NAME = 'wowsims-v6';
 
 const CORE_ASSETS = [
   '/wowsims-mobile/',
@@ -7,6 +7,7 @@ const CORE_ASSETS = [
   '/wowsims-mobile/sim_worker.js',
   '/wowsims-mobile/net_worker.js',
   '/wowsims-mobile/mobile.css',
+  '/wowsims-mobile/icon-fallback.css',
   '/wowsims-mobile/assets/database/db.json',
   '/wowsims-mobile/assets/vendor/jquery.min.js',
   '/wowsims-mobile/assets/vendor/fontawesome.css',

@@ -43,9 +43,398 @@
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 	<meta name="theme-color" content="#0d1117">
+	<link rel="stylesheet" href="/wowsims-mobile/icon-fallback.css">
 </head>
 		<script>if("serviceWorker"in navigator){navigator.serviceWorker.register("/wowsims-mobile/sw.js").then(r=>{console.log("SW registered, scope:",r.scope)})}</script>
-	<body id="bootstrap-overrides"></body>
+	<body id="bootstrap-overrides"><script>// WoWSims Mobile 中文界面 + 图标修复
+(function() {
+'use strict';
+
+// ==================== 图标URL替换 ====================
+// 拦截所有setAttribute调用，替换无法访问的wow.zamimg.com图标URL
+const ICON_CDN = 'https://wow.zamimg.com';
+const LOCAL_ICON_BASE = window.location.origin + '/wowsims-mobile/icons';
+
+// 创建默认图标SVG data URI
+function makeDefaultIcon(color, text) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="56" height="56">
+    <rect width="56" height="56" rx="4" fill="${color}" opacity="0.3"/>
+    <rect x="1" y="1" width="54" height="54" rx="3" fill="none" stroke="${color}" stroke-width="1" opacity="0.5"/>
+    <text x="28" y="34" font-family="Arial,sans-serif" font-size="16" fill="${color}" text-anchor="middle" opacity="0.8">${text}</text>
+  </svg>`;
+  return 'data:image/svg+xml,' + encodeURIComponent(svg);
+}
+
+const DEFAULT_ICONS = {
+  large: makeDefaultIcon('#c9d1d9', '?'),
+  medium: makeDefaultIcon('#c9d1d9', '?'),
+  small: makeDefaultIcon('#c9d1d9', '?')
+};
+
+// 拦截 Element.setAttribute
+const origSetAttribute = Element.prototype.setAttribute;
+Element.prototype.setAttribute = function(name, value) {
+  if (name === 'style' && typeof value === 'string' && value.includes(ICON_CDN)) {
+    // 替换图标URL为本地路径
+    value = value.replace(new RegExp(ICON_CDN.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '/images/wow/icons/(large|medium|small)/([^\'")\\s]+)\\.jpg', 'g'),
+      function(match, size, iconName) {
+        return LOCAL_ICON_BASE + '/' + size + '/' + iconName + '.jpg';
+      });
+  }
+  if (name === 'src' && typeof value === 'string' && value.includes(ICON_CDN)) {
+    value = value.replace(new RegExp(ICON_CDN.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '/images/wow/icons/(large|medium|small)/([^\'")\\s]+)\\.jpg', 'g'),
+      function(match, size, iconName) {
+        return LOCAL_ICON_BASE + '/' + size + '/' + iconName + '.jpg';
+      });
+  }
+  return origSetAttribute.call(this, name, value);
+};
+
+// 拦截 CSS style.backgroundImage 设置
+const origStyleSet = CSSStyleDeclaration.prototype.setProperty;
+CSSStyleDeclaration.prototype.setProperty = function(prop, value, priority) {
+  if (prop === 'background-image' && typeof value === 'string' && value.includes(ICON_CDN)) {
+    value = value.replace(new RegExp(ICON_CDN.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '/images/wow/icons/(large|medium|small)/([^\'")\\s]+)\\.jpg', 'g'),
+      function(match, size, iconName) {
+        return LOCAL_ICON_BASE + '/' + size + '/' + iconName + '.jpg';
+      });
+  }
+  return origStyleSet.call(this, prop, value, priority);
+};
+
+// 也拦截直接赋值方式 (element.style.backgroundImage = ...)
+const styleHandler = {
+  set: function(target, prop, value) {
+    if (prop === 'backgroundImage' && typeof value === 'string' && value.includes(ICON_CDN)) {
+      value = value.replace(new RegExp(ICON_CDN.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '/images/wow/icons/(large|medium|small)/([^\'")\\s]+)\\.jpg', 'g'),
+        function(match, size, iconName) {
+          return LOCAL_ICON_BASE + '/' + size + '/' + iconName + '.jpg';
+        });
+    }
+    target[prop] = value;
+    return true;
+  }
+};
+
+// ==================== 中文翻译 ====================
+const TRANSLATIONS = {
+  // 主标签页
+  'Import': '导入',
+  'Character': '角色',
+  'Gear': '装备',
+  'Buffs': '增益',
+  'Rotation': '循环',
+  'Talents': '天赋',
+  'Glyphs': '雕文',
+  'Stats': '属性',
+  
+  // 按钮
+  'Simulate': '模拟',
+  'Save': '保存',
+  'Share': '分享',
+  'Edit': '编辑',
+  'Copy': '复制',
+  'Delete': '删除',
+  'Reset': '重置',
+  'Close': '关闭',
+  'Apply': '应用',
+  'Download': '下载',
+  'Upload': '上传',
+  
+  // 装备槽位
+  'Head': '头部',
+  'Neck': '颈部',
+  'Shoulders': '肩部',
+  'Back': '背部',
+  'Chest': '胸部',
+  'Wrist': '手腕',
+  'Hands': '手部',
+  'Waist': '腰部',
+  'Legs': '腿部',
+  'Feet': '脚部',
+  'Finger 1': '戒指1',
+  'Finger 2': '戒指2',
+  'Trinket 1': '饰品1',
+  'Trinket 2': '饰品2',
+  'Main Hand': '主手',
+  'Off Hand': '副手',
+  'Ranged': '远程',
+  
+  // 属性
+  'Strength': '力量',
+  'Agility': '敏捷',
+  'Stamina': '耐力',
+  'Intellect': '智力',
+  'Spirit': '精神',
+  'DPS': '秒伤',
+  'Haste': '急速',
+  'Hit': '命中',
+  'Crit': '暴击',
+  'Expertise': '精准',
+  'Armor Penetration': '护甲穿透',
+  'Attack Power': '攻击强度',
+  'Spell Power': '法术强度',
+  'Armor': '护甲',
+  'Defense': '防御',
+  'Dodge': '躲闪',
+  'Parry': '招架',
+  'Block': '格挡',
+  'Resilience': '韧性',
+  'Mana Per 5s': '每5秒回蓝',
+  'Health': '生命值',
+  'Mana': '法力值',
+  'AP': '攻强',
+  'ArP': '破甲',
+  'Atk Pwr': '攻强',
+  'Spell Pwr': '法强',
+  'MP5': '五回',
+  
+  // 种族
+  'Race': '种族',
+  'Night Elf': '暗夜精灵',
+  'Human': '人类',
+  'Dwarf': '矮人',
+  'Gnome': '侏儒',
+  'Draenei': '德莱尼',
+  'Orc': '兽人',
+  'Troll': '巨魔',
+  'Undead': '亡灵',
+  'Tauren': '牛头人',
+  'Blood Elf': '血精灵',
+  
+  // 专业
+  'Profession': '专业',
+  'Blacksmithing': '锻造',
+  'Enchanting': '附魔',
+  'Jewelcrafting': '珠宝加工',
+  'Leatherworking': '制皮',
+  'Tailoring': '裁缝',
+  'Engineering': '工程学',
+  'Alchemy': '炼金术',
+  'Inscription': '铭文',
+  'Skinning': '剥皮',
+  'Mining': '采矿',
+  'Herbalism': '草药学',
+  
+  // 装备相关
+  'Item': '物品',
+  'Enchant': '附魔',
+  'Gem': '宝石',
+  'Set': '套装',
+  'Bonus': '奖励',
+  'Socket': '插槽',
+  'Meta': '多彩',
+  'Red': '红色',
+  'Blue': '蓝色',
+  'Yellow': '黄色',
+  'Prismatic': '棱彩',
+  
+  // 其他UI
+  'Sim Options': '模拟选项',
+  'Settings': '设置',
+  'Show': '显示',
+  'Hide': '隐藏',
+  'Phase': '阶段',
+  'Difficulty': '难度',
+  'Faction': '阵营',
+  'Alliance': '联盟',
+  'Horde': '部落',
+  'Pet': '宠物',
+  'Pets': '宠物',
+  'Talents': '天赋',
+  'Glyphs': '雕文',
+  'Major': '大型',
+  'Minor': '小型',
+  'Preset': '预设',
+  'Custom': '自定义',
+  'Import From URL': '从URL导入',
+  'Addon Import': '插件导入',
+  'Manual Import': '手动导入',
+  
+  // 模拟结果
+  'Sim Result': '模拟结果',
+  'Mean DPS': '平均秒伤',
+  'DPS StDev': '秒伤标准差',
+  'Iterations': '迭代次数',
+  'Duration': '持续时间',
+  'Damage': '伤害',
+  'Healing': '治疗',
+  'Threat': '仇恨',
+  'Percent': '百分比',
+  
+  // 天赋
+  'Points': '点数',
+  'Beast Mastery': '野兽控制',
+  'Marksmanship': '射击',
+  'Survival': '生存',
+  'Affliction': '痛苦',
+  'Demonology': '恶魔学识',
+  'Destruction': '毁灭',
+  'Arms': '武器',
+  'Fury': '狂怒',
+  'Protection': '防护',
+  'Assassination': '刺杀',
+  'Combat': '战斗',
+  'Subtlety': '敏锐',
+  'Holy': '神圣',
+  'Discipline': '戒律',
+  'Shadow': '暗影',
+  'Balance': '平衡',
+  'Feral': '野性',
+  'Restoration': '恢复',
+  'Elemental': '元素',
+  'Enhancement': '增强',
+  'Retribution': '惩戒',
+  'Blood': '鲜血',
+  'Frost': '冰霜',
+  'Unholy': '邪恶',
+  'Arcane': '奥术',
+  'Fire': '火焰',
+};
+
+// 翻译函数
+function translateText(text) {
+  const trimmed = text.trim();
+  if (TRANSLATIONS[trimmed]) {
+    return TRANSLATIONS[trimmed];
+  }
+  return null;
+}
+
+// DOM翻译处理
+function translateNode(node) {
+  if (node.nodeType === Node.TEXT_NODE) {
+    const text = node.textContent.trim();
+    if (text.length > 0 && text.length < 50) {
+      const translated = translateText(text);
+      if (translated) {
+        node.textContent = translated;
+      }
+    }
+  } else if (node.nodeType === Node.ELEMENT_NODE) {
+    // 翻译 title 和 placeholder 属性
+    if (node.title && TRANSLATIONS[node.title]) {
+      node.title = TRANSLATIONS[node.title];
+    }
+    if (node.placeholder && TRANSLATIONS[node.placeholder]) {
+      node.placeholder = TRANSLATIONS[node.placeholder];
+    }
+    // 翻译子节点
+    for (const child of node.childNodes) {
+      translateNode(child);
+    }
+  }
+}
+
+// 在DOM加载后进行初始翻译
+function doInitialTranslation() {
+  // 翻译所有文本节点
+  const walker = document.createTreeWalker(
+    document.body,
+    NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT,
+    null,
+    false
+  );
+  
+  const textNodes = [];
+  let node;
+  while (node = walker.nextNode()) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      textNodes.push(node);
+    }
+  }
+  
+  for (const textNode of textNodes) {
+    const text = textNode.textContent.trim();
+    if (text.length > 0 && text.length < 50) {
+      const translated = translateText(text);
+      if (translated) {
+        textNode.textContent = translated;
+      }
+    }
+  }
+}
+
+// 监听DOM变化进行实时翻译
+const observer = new MutationObserver(function(mutations) {
+  for (const mutation of mutations) {
+    for (const node of mutation.addedNodes) {
+      translateNode(node);
+    }
+    // 处理属性变化
+    if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+      // 某些class变化可能触发重新渲染
+    }
+  }
+});
+
+// 启动翻译
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(doInitialTranslation, 500);
+    setTimeout(doInitialTranslation, 1500);
+    setTimeout(doInitialTranslation, 3000);
+    observer.observe(document.body, { 
+      childList: true, 
+      subtree: true,
+      characterData: true
+    });
+  });
+} else {
+  setTimeout(doInitialTranslation, 500);
+  setTimeout(doInitialTranslation, 1500);
+  setTimeout(doInitialTranslation, 3000);
+  observer.observe(document.body, { 
+    childList: true, 
+    subtree: true,
+    characterData: true
+  });
+}
+
+// ==================== 图标加载失败处理 ====================
+// 监听所有图片加载错误
+document.addEventListener('error', function(e) {
+  if (e.target.tagName === 'IMG' && e.target.src && e.target.src.includes('zamimg')) {
+    e.target.src = DEFAULT_ICONS.large;
+    e.target.style.opacity = '0.3';
+  }
+}, true);
+
+// 监听背景图加载失败
+const bgObserver = new MutationObserver(function(mutations) {
+  for (const m of mutations) {
+    if (m.type === 'attributes' && m.attributeName === 'style') {
+      const el = m.target;
+      const bg = el.style.backgroundImage;
+      if (bg && bg.includes('zamimg')) {
+        // 检查图片是否可加载
+        const urlMatch = bg.match(/url\(['"]?([^'")\s]+)['"]?\)/);
+        if (urlMatch) {
+          const img = new Image();
+          img.onerror = function() {
+            el.style.backgroundImage = 'none';
+            el.style.backgroundColor = 'rgba(100,100,120,0.3)';
+            el.style.border = '1px solid rgba(255,255,255,0.1)';
+          };
+          img.src = urlMatch[1];
+        }
+      }
+    }
+  }
+});
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', function() {
+    bgObserver.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['style'] });
+  });
+} else {
+  bgObserver.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['style'] });
+}
+
+console.log('[WoWSims Mobile] 中文界面 + 图标修复已加载');
+})();
+</script>
+</body>
 	<!-- Load wowhead scripts after done loading everything else -->
 	<script>
 		const whTooltips = { colorLinks: true };
