@@ -1,275 +1,215 @@
-// WoWSims Mobile 中文界面 + 图标修复
+// WoWSims Mobile 中文界面 + 图标修复 v2
 (function() {
 'use strict';
 
-// ==================== 图标URL替换 ====================
-// 拦截所有setAttribute调用，替换无法访问的wow.zamimg.com图标URL
-const ICON_CDN = 'https://wow.zamimg.com';
-const LOCAL_ICON_BASE = window.location.origin + '/wowsims-mobile/icons';
+const ICON_CDN = 'wow.zamimg.com';
+const LOCAL_BASE = '/wowsims-mobile/icons';
 
-// 创建默认图标SVG data URI
-function makeDefaultIcon(color, text) {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="56" height="56">
-    <rect width="56" height="56" rx="4" fill="${color}" opacity="0.3"/>
-    <rect x="1" y="1" width="54" height="54" rx="3" fill="none" stroke="${color}" stroke-width="1" opacity="0.5"/>
-    <text x="28" y="34" font-family="Arial,sans-serif" font-size="16" fill="${color}" text-anchor="middle" opacity="0.8">${text}</text>
-  </svg>`;
-  return 'data:image/svg+xml,' + encodeURIComponent(svg);
+// URL重写函数
+function rewriteIconUrl(url) {
+  if (!url || typeof url !== 'string') return url;
+  if (!url.includes(ICON_CDN)) return url;
+  
+  // 重写 wow icons: /images/wow/icons/{size}/{name}.jpg -> /icons/{size}/{name}.svg
+  url = url.replace(/https?:\/\/wow\.zamimg\.com\/images\/wow\/icons\/(large|medium|small)\/([^'"\\s)]+)\.jpg/g,
+    LOCAL_BASE + '/$1/$2.svg');
+  
+  // 重写 socket icons: /images/icons/socket-{type}.gif -> /icons/socket/socket-{type}.svg
+  url = url.replace(/https?:\/\/wow\.zamimg\.com\/images\/icons\/(socket-\w+)\.gif/g,
+    LOCAL_BASE + '/socket/$1.svg');
+  
+  // 重写 tooltips.js
+  url = url.replace(/https?:\/\/wow\.zamimg\.com\/js\/tooltips\.js/g, '');
+  
+  return url;
 }
-
-const DEFAULT_ICONS = {
-  large: makeDefaultIcon('#c9d1d9', '?'),
-  medium: makeDefaultIcon('#c9d1d9', '?'),
-  small: makeDefaultIcon('#c9d1d9', '?')
-};
 
 // 拦截 Element.setAttribute
 const origSetAttribute = Element.prototype.setAttribute;
 Element.prototype.setAttribute = function(name, value) {
-  if (name === 'style' && typeof value === 'string' && value.includes(ICON_CDN)) {
-    // 替换图标URL为本地路径
-    value = value.replace(new RegExp(ICON_CDN.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '/images/wow/icons/(large|medium|small)/([^\'")\\s]+)\\.jpg', 'g'),
-      function(match, size, iconName) {
-        return LOCAL_ICON_BASE + '/' + size + '/' + iconName + '.jpg';
-      });
-  }
-  if (name === 'src' && typeof value === 'string' && value.includes(ICON_CDN)) {
-    value = value.replace(new RegExp(ICON_CDN.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '/images/wow/icons/(large|medium|small)/([^\'")\\s]+)\\.jpg', 'g'),
-      function(match, size, iconName) {
-        return LOCAL_ICON_BASE + '/' + size + '/' + iconName + '.jpg';
-      });
+  if (typeof value === 'string' && (name === 'src' || name === 'href' || name === 'style')) {
+    value = rewriteIconUrl(value);
   }
   return origSetAttribute.call(this, name, value);
 };
 
-// 拦截 CSS style.backgroundImage 设置
-const origStyleSet = CSSStyleDeclaration.prototype.setProperty;
+// 拦截 CSSStyleDeclaration.setProperty
+const origSetProp = CSSStyleDeclaration.prototype.setProperty;
 CSSStyleDeclaration.prototype.setProperty = function(prop, value, priority) {
-  if (prop === 'background-image' && typeof value === 'string' && value.includes(ICON_CDN)) {
-    value = value.replace(new RegExp(ICON_CDN.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '/images/wow/icons/(large|medium|small)/([^\'")\\s]+)\\.jpg', 'g'),
-      function(match, size, iconName) {
-        return LOCAL_ICON_BASE + '/' + size + '/' + iconName + '.jpg';
-      });
+  if (typeof value === 'string') {
+    value = rewriteIconUrl(value);
   }
-  return origStyleSet.call(this, prop, value, priority);
+  return origSetProp.call(this, prop, value, priority);
 };
 
-// 也拦截直接赋值方式 (element.style.backgroundImage = ...)
-const styleHandler = {
-  set: function(target, prop, value) {
-    if (prop === 'backgroundImage' && typeof value === 'string' && value.includes(ICON_CDN)) {
-      value = value.replace(new RegExp(ICON_CDN.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '/images/wow/icons/(large|medium|small)/([^\'")\\s]+)\\.jpg', 'g'),
-        function(match, size, iconName) {
-          return LOCAL_ICON_BASE + '/' + size + '/' + iconName + '.jpg';
-        });
+// 拦截图片创建
+const origImgSrc = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'src');
+if (origImgSrc && origImgSrc.set) {
+  Object.defineProperty(HTMLImageElement.prototype, 'src', {
+    get: origImgSrc.get,
+    set: function(val) {
+      origImgSrc.set.call(this, rewriteIconUrl(val));
+    },
+    configurable: true
+  });
+}
+
+// 监听已加载的图片，修复失败的图标
+document.addEventListener('error', function(e) {
+  if (e.target.tagName === 'IMG') {
+    const src = e.target.getAttribute('src') || '';
+    if (src.includes(ICON_CDN)) {
+      const newUrl = rewriteIconUrl(src);
+      if (newUrl !== src) {
+        e.target.setAttribute('src', newUrl);
+      } else {
+        // 最终回退：显示占位图
+        e.target.style.opacity = '0.3';
+        e.target.style.backgroundColor = 'rgba(100,100,120,0.5)';
+      }
     }
-    target[prop] = value;
-    return true;
   }
-};
+}, true);
 
 // ==================== 中文翻译 ====================
 const TRANSLATIONS = {
-  // 主标签页
-  'Import': '导入',
-  'Character': '角色',
-  'Gear': '装备',
-  'Buffs': '增益',
-  'Rotation': '循环',
-  'Talents': '天赋',
-  'Glyphs': '雕文',
-  'Stats': '属性',
+  // 标签页
+  'Import': '导入', 'Character': '角色', 'Gear': '装备',
+  'Buffs': '增益', 'Rotation': '循环', 'Talents': '天赋',
+  'Glyphs': '雕文', 'Stats': '属性',
   
   // 按钮
-  'Simulate': '模拟',
-  'Save': '保存',
-  'Share': '分享',
-  'Edit': '编辑',
-  'Copy': '复制',
-  'Delete': '删除',
-  'Reset': '重置',
-  'Close': '关闭',
-  'Apply': '应用',
-  'Download': '下载',
-  'Upload': '上传',
+  'Simulate': '模拟计算', 'Save': '保存', 'Share': '分享',
+  'Edit': '编辑', 'Copy': '复制', 'Delete': '删除',
+  'Reset': '重置', 'Close': '关闭', 'Apply': '应用',
+  'Download SVG': '下载SVG', 'Download PNG': '下载PNG',
+  'View in Separate Tab': '在新标签页查看',
+  'Sim 1 Iteration': '模拟1次迭代',
   
   // 装备槽位
-  'Head': '头部',
-  'Neck': '颈部',
-  'Shoulders': '肩部',
-  'Back': '背部',
-  'Chest': '胸部',
-  'Wrist': '手腕',
-  'Hands': '手部',
-  'Waist': '腰部',
-  'Legs': '腿部',
-  'Feet': '脚部',
-  'Finger 1': '戒指1',
-  'Finger 2': '戒指2',
-  'Trinket 1': '饰品1',
-  'Trinket 2': '饰品2',
-  'Main Hand': '主手',
-  'Off Hand': '副手',
-  'Ranged': '远程',
+  'Head': '头部', 'Neck': '颈部', 'Shoulders': '肩部',
+  'Back': '背部', 'Chest': '胸部', 'Wrist': '手腕',
+  'Hands': '手部', 'Waist': '腰部', 'Legs': '腿部',
+  'Feet': '脚部', 'Finger 1': '戒指1', 'Finger 2': '戒指2',
+  'Trinket 1': '饰品1', 'Trinket 2': '饰品2',
+  'Main Hand': '主手', 'Off Hand': '副手', 'Ranged': '远程',
   
-  // 属性
-  'Strength': '力量',
-  'Agility': '敏捷',
-  'Stamina': '耐力',
-  'Intellect': '智力',
-  'Spirit': '精神',
-  'DPS': '秒伤',
-  'Haste': '急速',
-  'Hit': '命中',
-  'Crit': '暴击',
-  'Expertise': '精准',
-  'Armor Penetration': '护甲穿透',
-  'Attack Power': '攻击强度',
-  'Spell Power': '法术强度',
-  'Armor': '护甲',
-  'Defense': '防御',
-  'Dodge': '躲闪',
-  'Parry': '招架',
-  'Block': '格挡',
-  'Resilience': '韧性',
-  'Mana Per 5s': '每5秒回蓝',
-  'Health': '生命值',
-  'Mana': '法力值',
-  'AP': '攻强',
-  'ArP': '破甲',
-  'Atk Pwr': '攻强',
-  'Spell Pwr': '法强',
-  'MP5': '五回',
+  // 基础属性
+  'Strength': '力量', 'Agility': '敏捷', 'Stamina': '耐力',
+  'Intellect': '智力', 'Spirit': '精神', 'Health': '生命值',
+  'Mana': '法力值', 'Armor': '护甲',
+  
+  // 战斗属性
+  'DPS': '秒伤', 'Haste': '急速', 'Hit': '命中',
+  'Crit': '暴击', 'Expertise': '精准',
+  'Armor Penetration': '护甲穿透', 'Attack Power': '攻击强度',
+  'Spell Power': '法术强度', 'MP5': '五回',
+  'Mana Per 5 Sec': '每5秒回蓝', 'Spell Hit': '法术命中',
+  'Spell Crit': '法术暴击', 'Spell Haste': '法术急速',
+  'Defense': '防御', 'Dodge': '躲闪', 'Parry': '招架',
+  'Block': '格挡', 'Block Value': '格挡值',
+  'Resilience': '韧性', 'Melee Hit': '近战命中',
+  'Melee Crit': '近战暴击', 'Melee Haste': '近战急速',
+  'Atk Pwr': '攻强', 'Spell Pwr': '法强',
+  'Hit (Spell)': '法术命中', 'Hit (Melee)': '近战命中',
+  'Crit (Spell)': '法术暴击', 'Crit (Melee)': '近战暴击',
+  'ArP': '破甲', 'Exp': '精准',
   
   // 种族
-  'Race': '种族',
-  'Night Elf': '暗夜精灵',
-  'Human': '人类',
-  'Dwarf': '矮人',
-  'Gnome': '侏儒',
-  'Draenei': '德莱尼',
-  'Orc': '兽人',
-  'Troll': '巨魔',
-  'Undead': '亡灵',
-  'Tauren': '牛头人',
-  'Blood Elf': '血精灵',
+  'Race': '种族', 'Night Elf': '暗夜精灵', 'Human': '人类',
+  'Dwarf': '矮人', 'Gnome': '侏儒', 'Draenei': '德莱尼',
+  'Orc': '兽人', 'Troll': '巨魔', 'Undead': '亡灵',
+  'Tauren': '牛头人', 'Blood Elf': '血精灵',
   
   // 专业
-  'Profession': '专业',
-  'Blacksmithing': '锻造',
-  'Enchanting': '附魔',
-  'Jewelcrafting': '珠宝加工',
-  'Leatherworking': '制皮',
-  'Tailoring': '裁缝',
-  'Engineering': '工程学',
-  'Alchemy': '炼金术',
-  'Inscription': '铭文',
-  'Skinning': '剥皮',
-  'Mining': '采矿',
-  'Herbalism': '草药学',
+  'Profession': '专业', 'Profession 1': '专业1', 'Profession 2': '专业2',
+  'Blacksmithing': '锻造', 'Enchanting': '附魔',
+  'Jewelcrafting': '珠宝加工', 'Leatherworking': '制皮',
+  'Tailoring': '裁缝', 'Engineering': '工程学',
+  'Alchemy': '炼金术', 'Inscription': '铭文',
+  'Skinning': '剥皮', 'Mining': '采矿', 'Herbalism': '草药学',
   
   // 装备相关
-  'Item': '物品',
-  'Enchant': '附魔',
-  'Gem': '宝石',
-  'Set': '套装',
-  'Bonus': '奖励',
-  'Socket': '插槽',
-  'Meta': '多彩',
-  'Red': '红色',
-  'Blue': '蓝色',
-  'Yellow': '黄色',
-  'Prismatic': '棱彩',
+  'Item': '物品', 'Enchant': '附魔', 'Gem': '宝石',
+  'Set': '套装', 'Bonus': '奖励', 'Socket': '插槽',
+  'Meta': '多彩', 'Red': '红色', 'Blue': '蓝色',
+  'Yellow': '黄色', 'Prismatic': '棱彩',
+  'Items': '物品', 'Enchants': '附魔', 'Gems': '宝石',
+  'Random': '随机', 'Quality': '品质',
+  'Minimum Quality': '最低品质', 'Maximum Quality': '最高品质',
+  'Source': '来源', 'Item Level': '物品等级',
+  'Speed': '速度', 'Weapon Damage': '武器伤害',
+  'DPS Label': '秒伤',
   
-  // 其他UI
-  'Sim Options': '模拟选项',
-  'Settings': '设置',
-  'Show': '显示',
-  'Hide': '隐藏',
-  'Phase': '阶段',
-  'Difficulty': '难度',
-  'Faction': '阵营',
-  'Alliance': '联盟',
-  'Horde': '部落',
-  'Pet': '宠物',
-  'Pets': '宠物',
-  'Talents': '天赋',
-  'Glyphs': '雕文',
-  'Major': '大型',
-  'Minor': '小型',
-  'Preset': '预设',
-  'Custom': '自定义',
-  'Import From URL': '从URL导入',
-  'Addon Import': '插件导入',
-  'Manual Import': '手动导入',
+  // 天赋树
+  'Beast Mastery': '野兽控制', 'Marksmanship': '射击',
+  'Survival': '生存', 'Affliction': '痛苦',
+  'Demonology': '恶魔学识', 'Destruction': '毁灭',
+  'Arms': '武器', 'Fury': '狂怒', 'Protection': '防护',
+  'Assassination': '刺杀', 'Combat': '战斗', 'Subtlety': '敏锐',
+  'Holy': '神圣', 'Discipline': '戒律', 'Shadow': '暗影',
+  'Balance': '平衡', 'Feral': '野性战斗', 'Restoration': '恢复',
+  'Elemental': '元素', 'Enhancement': '增强',
+  'Retribution': '惩戒', 'Blood': '鲜血', 'Frost': '冰霜',
+  'Unholy': '邪恶', 'Arcane': '奥术', 'Fire': '火焰',
   
-  // 模拟结果
-  'Sim Result': '模拟结果',
-  'Mean DPS': '平均秒伤',
-  'DPS StDev': '秒伤标准差',
-  'Iterations': '迭代次数',
-  'Duration': '持续时间',
-  'Damage': '伤害',
-  'Healing': '治疗',
-  'Threat': '仇恨',
-  'Percent': '百分比',
+  // 宠物
+  'Pet': '宠物', 'Pets': '宠物', 'Pet Type': '宠物类型',
+  'Bat': '蝙蝠', 'Bear': '熊', 'Bird of Prey': '猛禽',
+  'Boar': '野猪', 'Cat': '猫', 'Carrion Bird': '食腐鸟',
+  'Crab': '螃蟹', 'Crocolisk': '鳄鱼', 'Dragonhawk': '龙鹰',
+  'Gorilla': '大猩猩', 'Hyena': '土狼', 'Moth': '蛾',
+  'Nether Ray': '虚空鳐', 'Owl': '猫头鹰', 'Raptor': '迅猛龙',
+  'Ravager': '掠食者', 'Rhino': '犀牛', 'Scorpid': '蝎子',
+  'Silithid': '异种虫', 'Spider': '蜘蛛', 'Sporebat': '孢子蝠',
+  'Tallstrider': '陆行鸟', 'Turtle': '龟', 'Vulture': '秃鹫',
+  'Warpstalker': '迁跃捕猎者', 'Wasp': '蜂', 'Wind Serpent': '风蛇',
+  'Wolf': '狼', 'Worm': '蠕虫', 'Core Hound': '熔岩犬',
+  'Devilsaur': '魔暴龙',
   
-  // 天赋
-  'Points': '点数',
-  'Beast Mastery': '野兽控制',
-  'Marksmanship': '射击',
-  'Survival': '生存',
-  'Affliction': '痛苦',
-  'Demonology': '恶魔学识',
-  'Destruction': '毁灭',
-  'Arms': '武器',
-  'Fury': '狂怒',
-  'Protection': '防护',
-  'Assassination': '刺杀',
-  'Combat': '战斗',
-  'Subtlety': '敏锐',
-  'Holy': '神圣',
-  'Discipline': '戒律',
-  'Shadow': '暗影',
-  'Balance': '平衡',
-  'Feral': '野性',
-  'Restoration': '恢复',
-  'Elemental': '元素',
-  'Enhancement': '增强',
-  'Retribution': '惩戒',
-  'Blood': '鲜血',
-  'Frost': '冰霜',
-  'Unholy': '邪恶',
-  'Arcane': '奥术',
-  'Fire': '火焰',
+  // 模拟设置
+  'Sim Options': '模拟选项', 'Settings': '设置',
+  'Fight Duration': '战斗时长', 'Iterations': '迭代次数',
+  'Phase': '阶段', 'Difficulty': '难度',
+  'Faction': '阵营', 'Alliance': '联盟', 'Horde': '部落',
+  'Level': '等级', 'Boss': 'Boss', 'Boss Level': 'Boss等级',
+  'Target Armor': '目标护甲',
+  
+  // 结果显示
+  'Sim Result': '模拟结果', 'Mean DPS': '平均秒伤',
+  'DPS StDev': '标准差', 'Duration': '持续时间',
+  'Damage': '伤害', 'Healing': '治疗', 'Threat': '仇恨',
+  'Percent': '百分比', 'Total': '总计',
+  'Damage Done': '造成伤害', 'Damage Taken': '受到伤害',
+  
+  // 其他常用
+  'Show': '显示', 'Hide': '隐藏',
+  'Import From URL': '从URL导入', 'Addon Import': '插件导入',
+  'Manual Import': '手动导入', 'Bag Item Import': '背包导入',
+  'Custom': '自定义', 'Preset': '预设',
+  'Gear': '装备', 'Talents': '天赋', 'Rotation': '循环',
+  'Consumes': '消耗品', 'World Buffs': '世界Buff',
+  'Enabled': '启用', 'Disabled': '禁用',
+  'Active': '激活', 'Inactive': '未激活',
+  'Name': '名称', 'Type': '类型', 'Value': '值',
+  'Note': '备注', 'Description': '描述',
+  'Filter': '筛选', 'Search': '搜索',
+  'Sort By': '排序方式', 'Ascending': '升序', 'Descending': '降序',
 };
 
-// 翻译函数
-function translateText(text) {
-  const trimmed = text.trim();
-  if (TRANSLATIONS[trimmed]) {
-    return TRANSLATIONS[trimmed];
-  }
-  return null;
-}
-
-// DOM翻译处理
+// 翻译DOM节点
 function translateNode(node) {
   if (node.nodeType === Node.TEXT_NODE) {
     const text = node.textContent.trim();
-    if (text.length > 0 && text.length < 50) {
-      const translated = translateText(text);
-      if (translated) {
-        node.textContent = translated;
-      }
+    if (text.length > 0 && text.length < 60 && TRANSLATIONS[text]) {
+      node.textContent = TRANSLATIONS[text];
     }
   } else if (node.nodeType === Node.ELEMENT_NODE) {
-    // 翻译 title 和 placeholder 属性
-    if (node.title && TRANSLATIONS[node.title]) {
-      node.title = TRANSLATIONS[node.title];
-    }
-    if (node.placeholder && TRANSLATIONS[node.placeholder]) {
-      node.placeholder = TRANSLATIONS[node.placeholder];
+    // 翻译属性
+    for (const attr of ['title', 'placeholder', 'aria-label', 'alt']) {
+      if (node[attr] && TRANSLATIONS[node[attr]]) {
+        node[attr] = TRANSLATIONS[node[attr]];
+      }
     }
     // 翻译子节点
     for (const child of node.childNodes) {
@@ -278,110 +218,41 @@ function translateNode(node) {
   }
 }
 
-// 在DOM加载后进行初始翻译
-function doInitialTranslation() {
-  // 翻译所有文本节点
-  const walker = document.createTreeWalker(
-    document.body,
-    NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT,
-    null,
-    false
-  );
-  
-  const textNodes = [];
-  let node;
-  while (node = walker.nextNode()) {
-    if (node.nodeType === Node.TEXT_NODE) {
-      textNodes.push(node);
-    }
-  }
-  
-  for (const textNode of textNodes) {
-    const text = textNode.textContent.trim();
-    if (text.length > 0 && text.length < 50) {
-      const translated = translateText(text);
-      if (translated) {
-        textNode.textContent = translated;
-      }
-    }
-  }
+// 初始翻译（延迟执行，等待JS渲染完成）
+function doTranslation() {
+  translateNode(document.body);
 }
 
-// 监听DOM变化进行实时翻译
+// 使用MutationObserver持续翻译新增内容
+let translateTimeout = null;
 const observer = new MutationObserver(function(mutations) {
-  for (const mutation of mutations) {
-    for (const node of mutation.addedNodes) {
-      translateNode(node);
-    }
-    // 处理属性变化
-    if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-      // 某些class变化可能触发重新渲染
-    }
-  }
-});
-
-// 启动翻译
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(doInitialTranslation, 500);
-    setTimeout(doInitialTranslation, 1500);
-    setTimeout(doInitialTranslation, 3000);
-    observer.observe(document.body, { 
-      childList: true, 
-      subtree: true,
-      characterData: true
-    });
-  });
-} else {
-  setTimeout(doInitialTranslation, 500);
-  setTimeout(doInitialTranslation, 1500);
-  setTimeout(doInitialTranslation, 3000);
-  observer.observe(document.body, { 
-    childList: true, 
-    subtree: true,
-    characterData: true
-  });
-}
-
-// ==================== 图标加载失败处理 ====================
-// 监听所有图片加载错误
-document.addEventListener('error', function(e) {
-  if (e.target.tagName === 'IMG' && e.target.src && e.target.src.includes('zamimg')) {
-    e.target.src = DEFAULT_ICONS.large;
-    e.target.style.opacity = '0.3';
-  }
-}, true);
-
-// 监听背景图加载失败
-const bgObserver = new MutationObserver(function(mutations) {
-  for (const m of mutations) {
-    if (m.type === 'attributes' && m.attributeName === 'style') {
-      const el = m.target;
-      const bg = el.style.backgroundImage;
-      if (bg && bg.includes('zamimg')) {
-        // 检查图片是否可加载
-        const urlMatch = bg.match(/url\(['"]?([^'")\s]+)['"]?\)/);
-        if (urlMatch) {
-          const img = new Image();
-          img.onerror = function() {
-            el.style.backgroundImage = 'none';
-            el.style.backgroundColor = 'rgba(100,100,120,0.3)';
-            el.style.border = '1px solid rgba(255,255,255,0.1)';
-          };
-          img.src = urlMatch[1];
-        }
+  // 防抖：合并短时间内多次DOM变化
+  if (translateTimeout) clearTimeout(translateTimeout);
+  translateTimeout = setTimeout(() => {
+    for (const m of mutations) {
+      for (const node of m.addedNodes) {
+        translateNode(node);
       }
     }
-  }
+  }, 100);
 });
 
+// 启动
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', function() {
-    bgObserver.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['style'] });
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(doTranslation, 300);
+    setTimeout(doTranslation, 1000);
+    setTimeout(doTranslation, 2500);
+    setTimeout(doTranslation, 5000);
+    observer.observe(document.body, { childList: true, subtree: true, characterData: true });
   });
 } else {
-  bgObserver.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['style'] });
+  setTimeout(doTranslation, 300);
+  setTimeout(doTranslation, 1000);
+  setTimeout(doTranslation, 2500);
+  setTimeout(doTranslation, 5000);
+  observer.observe(document.body, { childList: true, subtree: true, characterData: true });
 }
 
-console.log('[WoWSims Mobile] 中文界面 + 图标修复已加载');
+console.log('[WoWSims Mobile] 中文翻译 + 图标修复已加载 v2');
 })();
