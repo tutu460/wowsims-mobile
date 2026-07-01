@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+<rect width="256" height="256" fill="#1a1a2e"/>
+<rect x="0" y="0" width="256" height="256" fill="#f1c40f" opacity="0.15"/>
+<rect x="4" y="4" width="248" height="248" rx="8" fill="none" stroke="#f1c40f" stroke-width="2" opacity="0.3"/>
+<text x="128" y="140" font-family="Arial,sans-serif" font-size="48" fill="#f1c40f" text-anchor="middle" font-weight="bold" opacity="0.6">戒律</text>
+</svg>
