@@ -1,12 +1,9 @@
-const CACHE_NAME = 'wowsims-v2';
-const BASE = '/';
+const CACHE_NAME = 'wowsims-v3';
 
-// Core files to pre-cache
 const CORE_ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/wowsims-mobile/lib.wasm',
+  '/wowsims-mobile/',
+  '/wowsims-mobile/index.html',
+  '/wowsims-mobile/manifest.json',
   '/wowsims-mobile/sim_worker.js',
   '/wowsims-mobile/net_worker.js',
   '/wowsims-mobile/mobile.css',
@@ -24,7 +21,7 @@ const CORE_ASSETS = [
   '/wowsims-mobile/assets/favicon_io/android-chrome-512x512.png'
 ];
 
-// Install: pre-cache core assets
+// Install: pre-cache small core assets only (NOT the 40MB WASM)
 self.addEventListener('install', event => {
   self.skipWaiting();
   event.waitUntil(
@@ -37,43 +34,21 @@ self.addEventListener('install', event => {
   );
 });
 
-// Activate: clean old caches
+// Activate: clean ALL old caches
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys => 
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+      Promise.all(keys.map(k => caches.delete(k)))
     ).then(() => self.clients.claim())
   );
 });
 
-// Fetch: stale-while-revalidate for static assets, network-first for dynamic
+// Fetch: network-first for everything, simple fallback
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
-  
-  // Only handle same-origin requests
   if (url.origin !== location.origin) return;
   
-  // For WASM and large files: cache first (they never change)
-  if (url.pathname.includes('.wasm') || 
-      url.pathname.includes('db.json') ||
-      url.pathname.includes('/vendor/') ||
-      url.pathname.includes('/bundle/')) {
-    event.respondWith(
-      caches.match(event.request).then(cached => {
-        if (cached) return cached;
-        return fetch(event.request).then(response => {
-          if (response.ok) {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-          }
-          return response;
-        });
-      })
-    );
-    return;
-  }
-  
-  // For HTML pages: network first, fallback to cache
+  // Network-first for all requests
   event.respondWith(
     fetch(event.request).then(response => {
       if (response.ok) {
