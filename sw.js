@@ -1,4 +1,4 @@
-const CACHE_NAME = 'wowsims-v9';
+const CACHE_NAME = 'wowsims-v10';
 
 const CORE_ASSETS = [
   '/wowsims-mobile/',
@@ -20,17 +20,22 @@ const CORE_ASSETS = [
   '/wowsims-mobile/assets/favicon_io/favicon.ico',
   '/wowsims-mobile/assets/favicon_io/apple-touch-icon.png',
   '/wowsims-mobile/assets/favicon_io/android-chrome-192x192.png',
-  '/wowsims-mobile/assets/favicon_io/android-chrome-512x512.png'
+  '/wowsims-mobile/assets/favicon_io/android-chrome-512x512.png',
+  '/wowsims-mobile/icons/socket/socket-blue.svg',
+  '/wowsims-mobile/icons/socket/socket-meta.svg',
+  '/wowsims-mobile/icons/socket/socket-prismatic.svg',
+  '/wowsims-mobile/icons/socket/socket-red.svg',
+  '/wowsims-mobile/icons/socket/socket-yellow.svg'
 ];
 
-// Install: pre-cache small core assets only
+// Install
 self.addEventListener('install', event => {
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      console.log('[SW] Pre-caching core assets');
+      console.log('[SW v10] Pre-caching core assets');
       return cache.addAll(CORE_ASSETS).catch(err => {
-        console.warn('[SW] Some assets failed to cache:', err);
+        console.warn('[SW] Some core assets failed to cache:', err);
       });
     })
   );
@@ -39,49 +44,44 @@ self.addEventListener('install', event => {
 // Activate: clean ALL old caches
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(keys => 
+    caches.keys().then(keys =>
       Promise.all(keys.map(k => caches.delete(k)))
     ).then(() => self.clients.claim())
   );
 });
 
-// Fetch: intercept local icon requests -> redirect to CDN
+// Fetch handler
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
   
-  // Rewrite local icon paths to wow.zamimg.com CDN
-  if (url.origin === location.origin) {
-    const iconMatch = url.pathname.match(/\/wowsims-mobile\/icons\/(large|medium|small)\/(.+)\.svg$/);
-    if (iconMatch) {
-      const size = iconMatch[1];
-      const name = iconMatch[2];
-      const cdnUrl = `https://wow.zamimg.com/images/wow/icons/${size}/${name}.jpg`;
-      event.respondWith(fetch(cdnUrl).catch(() => fetch(event.request)));
-      return;
-    }
-    
-    const socketMatch = url.pathname.match(/\/wowsims-mobile\/icons\/socket\/(socket-\w+)\.svg$/);
-    if (socketMatch) {
-      const name = socketMatch[1];
-      const cdnUrl = `https://wow.zamimg.com/images/icons/${name}.gif`;
-      event.respondWith(fetch(cdnUrl).catch(() => fetch(event.request)));
-      return;
-    }
-  }
-  
-  // For non-origin requests, pass through
+  // Only handle same-origin requests
   if (url.origin !== location.origin) return;
   
-  // Network-first for all other requests
+  // Icon requests: network-first, then cache
+  if (url.pathname.match(/\/wowsims-mobile\/icons\//)) {
+    event.respondWith(
+      fetch(event.request).then(response => {
+        if (response.ok) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+        }
+        return response;
+      }).catch(() => caches.match(event.request))
+    );
+    return;
+  }
+  
+  // All other assets: cache-first (core assets pre-cached)
   event.respondWith(
-    fetch(event.request).then(response => {
-      if (response.ok) {
-        const clone = response.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-      }
-      return response;
-    }).catch(() => {
-      return caches.match(event.request);
-    })
+    caches.match(event.request).then(cached => {
+      if (cached) return cached;
+      return fetch(event.request).then(response => {
+        if (response.ok) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+        }
+        return response;
+      });
+    }).catch(() => caches.match(event.request))
   );
 });
