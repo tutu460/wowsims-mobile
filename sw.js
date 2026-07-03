@@ -1,4 +1,4 @@
-const CACHE_NAME = 'wowsims-v7';
+const CACHE_NAME = 'wowsims-v8';
 
 const CORE_ASSETS = [
   '/wowsims-mobile/',
@@ -7,6 +7,7 @@ const CORE_ASSETS = [
   '/wowsims-mobile/sim_worker.js',
   '/wowsims-mobile/net_worker.js',
   '/wowsims-mobile/mobile.css',
+  '/wowsims-mobile/i18n_full.js',
   '/wowsims-mobile/icon-fallback.css',
   '/wowsims-mobile/assets/database/db.json',
   '/wowsims-mobile/assets/vendor/jquery.min.js',
