@@ -9,5 +9,8 @@
         { "key": "X-Content-Type-Options", "value": "nosniff" }
       ]
     }
+  ],
+  "rewrites": [
+    { "source": "/wowsims-mobile/:path*", "destination": "/:path*" }
   ]
 }
