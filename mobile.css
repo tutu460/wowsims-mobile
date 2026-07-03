@@ -1,84 +1,49 @@
-/* WoWSims Mobile Responsive v2 - 全面移动端适配 */
+/* WoWSims Mobile Responsive v3 - H5专业级移动端适配 */
 
-/* === 全局基础 === */
+/* === 视口与全局 === */
 @media (max-width: 768px) {
+  :root {
+    --container-padding: 4px !important;
+  }
+
   html, body {
-    font-size: 14px !important;
+    font-size: 13px !important;
     overflow-x: hidden !important;
     width: 100% !important;
+    -webkit-text-size-adjust: 100% !important;
   }
 
-  /* 顶部通知条 */
-  .top-banner, .announcement-bar, [class*="banner"], [class*="announcement"] {
-    font-size: 0.7rem !important;
-    padding: 4px 8px !important;
-  }
-
-  /* 导航栏 */
+  /* === 导航栏：紧凑单行 === */
   .navbar {
-    padding: 0.2rem 0.4rem !important;
-    flex-wrap: nowrap !important;
+    padding: 2px 6px !important;
+    min-height: 36px !important;
   }
-  
+
+  .navbar-brand {
+    font-size: 0.85rem !important;
+    margin-right: 0.5rem !important;
+  }
+
   .navbar-brand-container {
     min-width: 0 !important;
   }
-  
+
   .wowsims-title {
-    font-size: 0.95rem !important;
+    font-size: 0.85rem !important;
+    white-space: nowrap !important;
   }
-  
+
   .expansion-title {
-    font-size: 0.65rem !important;
+    font-size: 0.6rem !important;
   }
 
   .wowsims-logo {
-    width: 28px !important;
-    height: 28px !important;
+    width: 24px !important;
+    height: 24px !important;
   }
 
-  /* 主容器 */
-  .container, .container-fluid {
-    padding-left: 0.25rem !important;
-    padding-right: 0.25rem !important;
-    max-width: 100% !important;
-  }
-
-  /* === 核心布局：左右面板改为上下堆叠 === */
-  .sim-ui-container {
-    flex-direction: column !important;
-  }
-
-  .left-column,
-  .right-column,
-  .left-sidebar,
-  .right-sidebar,
-  [class*="left-panel"],
-  [class*="right-panel"] {
-    width: 100% !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
-  }
-
-  /* 右侧Gear Sets等面板在移动端默认隐藏或折叠 */
-  .right-column,
-  .right-sidebar,
-  [class*="gear-set"],
-  [class*="preset"] {
-    order: 3 !important;
-  }
-
-  .left-column,
-  .left-sidebar {
-    order: 1 !important;
-  }
-
-  /* === Tab面板 === */
-  .tab-panel {
-    padding: 0.3rem !important;
-  }
-
-  .nav-tabs {
+  .navbar-nav {
+    flex-direction: row !important;
     flex-wrap: nowrap !important;
     overflow-x: auto !important;
     -webkit-overflow-scrolling: touch !important;
@@ -86,100 +51,272 @@
     gap: 2px !important;
   }
 
-  .nav-tabs::-webkit-scrollbar {
+  .navbar-nav::-webkit-scrollbar {
     display: none !important;
   }
 
-  .nav-tabs .nav-link {
+  .navbar-nav .nav-link {
+    padding: 4px 8px !important;
+    font-size: 0.7rem !important;
     white-space: nowrap !important;
-    font-size: 0.75rem !important;
-    padding: 0.3rem 0.5rem !important;
-    min-width: auto !important;
   }
 
-  /* === 装备选择器 === */
+  /* === 主布局：单列堆叠 === */
+  .sim-ui {
+    max-height: none !important;
+    overflow-y: visible !important;
+  }
+
+  .sim-root {
+    min-height: auto !important;
+    height: auto !important;
+  }
+
+  .sim-container {
+    flex-direction: column !important;
+    padding: 0 !important;
+  }
+
+  .sim-content {
+    flex: none !important;
+    width: 100% !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+    order: 2 !important;
+  }
+
+  /* === 装备面板：取消min-width限制，改为100%宽度 === */
+  .left-gear-panel {
+    min-width: 0 !important;
+    width: 100% !important;
+    flex: none !important;
+    margin: 0 0 8px 0 !important;
+    order: 1 !important;
+  }
+
+  .right-gear-panel {
+    min-width: 0 !important;
+    width: 100% !important;
+    flex: none !important;
+    margin: 8px 0 0 0 !important;
+    order: 3 !important;
+  }
+
+  /* === 装备选择器：紧凑网格 === */
   .gear-picker-root {
-    padding: 0.2rem !important;
+    width: 100% !important;
+  }
+
+  .gear-picker-root .gear-picker-left,
+  .gear-picker-root .gear-picker-right {
+    width: 100% !important;
+    flex: none !important;
   }
 
   .item-picker-root {
-    min-width: 0 !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    padding: 3px 2px !important;
+    margin-bottom: 2px !important;
+    min-height: 36px !important;
   }
 
-  .gear-picker-row {
-    flex-direction: column !important;
-    gap: 0.15rem !important;
+  .item-picker-root .item-picker-icon {
+    width: 32px !important;
+    height: 32px !important;
+    flex-shrink: 0 !important;
   }
 
-  .gear-picker-slot {
+  .item-picker-root .item-picker-name,
+  .item-picker-root .dropdown-picker-button {
+    font-size: 12px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  /* === 属性面板：紧凑表格 === */
+  .character-stats-root {
     width: 100% !important;
-    margin-bottom: 1px !important;
+    padding: 4px 0 !important;
   }
 
-  /* 装备选择下拉列表 */
-  .item-list, 
-  .fuzzy-search-list {
-    max-height: 180px !important;
+  .character-stats-root .character-stats-table {
     font-size: 12px !important;
   }
 
-  .item-list-item,
-  .fuzzy-search-list-item {
-    padding: 5px 6px !important;
-    min-height: 32px !important;
+  .character-stats-root .character-stats-table .character-stats-table-row {
+    border-top: 1px solid rgba(255,255,255,0.1) !important;
   }
 
-  /* === 属性面板 === */
-  .character-stats-root {
-    font-size: 0.75rem !important;
-    padding: 0.2rem !important;
+  .character-stats-root .character-stats-table .character-stats-table-row .character-stats-table-label,
+  .character-stats-root .character-stats-table .character-stats-table-row .character-stats-table-value {
+    padding: 3px 4px !important;
   }
 
-  .stat-row {
-    padding: 1px 0 !important;
-    font-size: 0.75rem !important;
+  /* === Tab标签页：横向滚动 === */
+  .sim-tabs {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+    border-bottom: 1px solid rgba(255,255,255,0.15) !important;
   }
 
-  /* === 天赋面板 === */
-  .talents-root {
+  .sim-tabs::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .sim-tabs .nav-link {
+    padding: 6px 10px !important;
+    font-size: 0.7rem !important;
+    white-space: nowrap !important;
+  }
+
+  .sim-tab {
+    width: 100% !important;
+  }
+
+  .sim-tab .tab-pane-content-container {
+    flex-direction: column !important;
+  }
+
+  .sim-tab .tab-pane-content-container .tab-panel-left {
+    flex: none !important;
+    width: 100% !important;
+  }
+
+  .sim-tab .tab-pane-content-container .tab-panel-right {
+    margin-left: 0 !important;
+    flex: none !important;
+    width: 100% !important;
+  }
+
+  .sim-tab .tab-pane-content-container .tab-panel-col {
+    flex: none !important;
+    width: 100% !important;
+    margin-right: 0 !important;
+  }
+
+  .sim-tab .tab-pane-content-container .tab-panel-col:not(:last-child) {
+    margin-right: 0 !important;
+    margin-bottom: 4px !important;
+  }
+
+  /* === 天赋面板：水平滚动 === */
+  .talents-picker-container {
     overflow-x: auto !important;
     -webkit-overflow-scrolling: touch !important;
   }
 
-  .talent-tree {
-    min-width: 220px !important;
+  .talents-picker-container .talents-container {
+    display: flex !important;
+    min-width: 280px !important;
   }
 
-  /* === 模拟按钮 === */
+  .talent-tree {
+    min-width: 90px !important;
+  }
+
+  .talents-tab-content {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+  }
+
+  .talents-tab .hunter-talents-pickers-container .tab-pane {
+    flex-direction: column !important;
+    flex-wrap: nowrap !important;
+  }
+
+  /* === 模拟按钮：底部固定 === */
   .simulate-button-root {
-    width: 100% !important;
     position: sticky !important;
     bottom: 0 !important;
-    z-index: 100 !important;
-    background: var(--bs-body-bg, #1b2838) !important;
-    padding: 0.4rem !important;
-    border-top: 1px solid rgba(255,255,255,0.1) !important;
+    z-index: 1000 !important;
+    width: 100% !important;
+    background: #1b2838 !important;
+    padding: 6px !important;
+    border-top: 1px solid rgba(255,255,255,0.15) !important;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.3) !important;
   }
 
   .simulate-button {
     width: 100% !important;
-    font-size: 0.95rem !important;
-    padding: 0.5rem !important;
+    font-size: 1rem !important;
+    padding: 10px !important;
+    min-height: 44px !important;
+    border-radius: 6px !important;
   }
 
-  /* === 模拟结果 === */
-  .results-sim {
+  /* === 下拉选择器：触摸友好 === */
+  .dropdown-picker-root,
+  .dropdown-root {
+    width: 100% !important;
+  }
+
+  .dropdown-picker-button {
+    min-height: 36px !important;
+    font-size: 12px !important;
+    padding: 4px 8px !important;
+  }
+
+  .dropdown-panel {
+    max-height: 200px !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    z-index: 9999 !important;
+  }
+
+  .dropdown-option-container {
+    min-height: 32px !important;
+    padding: 4px 8px !important;
+    font-size: 12px !important;
+  }
+
+  /* === 消耗品选择器 === */
+  .consumes-picker-root {
+    flex-wrap: wrap !important;
+  }
+
+  /* === 结果展示 === */
+  .dps-histogram-root {
+    width: 100% !important;
+  }
+
+  .detailed-results-manager-root {
+    width: 100% !important;
+    padding: 0 !important;
+  }
+
+  .apexcharts-canvas {
+    width: 100% !important;
+  }
+
+  /* === 导入导出按钮 === */
+  .sim-header .import-export,
+  .sim-header .sim-toolbar {
+    flex-wrap: wrap !important;
+    gap: 4px !important;
+  }
+
+  .sim-header .import-export .btn,
+  .sim-header .sim-toolbar .btn {
+    font-size: 11px !important;
+    padding: 4px 8px !important;
+    min-height: 32px !important;
+  }
+
+  /* === 通用按钮 === */
+  .btn {
+    min-height: 36px !important;
     font-size: 0.75rem !important;
-  }
-
-  .dps-bar-root {
-    height: 16px !important;
-    font-size: 10px !important;
+    padding: 4px 10px !important;
   }
 
   /* === 表格 === */
   table {
-    font-size: 0.7rem !important;
+    font-size: 11px !important;
+    width: 100% !important;
   }
 
   .table-responsive {
@@ -187,116 +324,102 @@
     -webkit-overflow-scrolling: touch !important;
   }
 
-  /* === 输入框触摸优化 === */
-  input, select, textarea, button {
-    min-height: 34px !important;
-    font-size: 14px !important;
-  }
-
-  .btn {
-    padding: 0.3rem 0.6rem !important;
-    min-height: 34px !important;
-    font-size: 0.8rem !important;
-  }
-
-  .form-control {
-    padding: 0.3rem 0.5rem !important;
-    font-size: 14px !important;
+  /* === 输入框 === */
+  input, select, textarea {
+    min-height: 36px !important;
+    font-size: 14px !important; /* 防止iOS自动缩放 */
   }
 
   /* === 模态框 === */
   .modal-dialog {
-    margin: 0.3rem !important;
-    max-width: calc(100% - 0.6rem) !important;
+    margin: 4px !important;
+    max-width: calc(100% - 8px) !important;
   }
 
   .modal-body {
-    padding: 0.5rem !important;
+    padding: 8px !important;
     max-height: 70vh !important;
     overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
   }
 
   /* === 工具提示 === */
   .tooltip-inner {
-    max-width: 260px !important;
+    max-width: 240px !important;
     font-size: 11px !important;
     text-align: left !important;
     white-space: normal !important;
   }
 
-  /* === 首页职业选择 === */
-  .class-selector {
+  /* === 设置面板 === */
+  .settings-tab {
     flex-direction: column !important;
-    align-items: stretch !important;
   }
 
-  .class-selector-button {
-    width: 100% !important;
-    margin: 0.2rem 0 !important;
+  /* === 批量模拟 === */
+  .bulk-tab {
+    flex-direction: column !important;
   }
 
-  /* === 侧边栏 === */
-  .left-sidebar,
-  .right-sidebar {
-    overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch !important;
-    max-height: calc(100vh - 50px) !important;
-  }
-
-  /* === Detailed Results === */
-  .detailed-results-root {
-    padding: 0.2rem !important;
-  }
-
-  .apexcharts-canvas {
+  .bulk-item-picker {
     width: 100% !important;
   }
 
-  /* === Gear Sets 面板适配 === */
-  [class*="gear-set"], [class*="preset"] {
-    width: 100% !important;
-  }
-
-  [class*="gear-set"] button, [class*="preset"] button {
-    font-size: 0.7rem !important;
-    padding: 0.25rem 0.4rem !important;
-    margin: 2px !important;
-  }
-
-  /* === 防止水平滚动 === */
+  /* === 防止水平溢出 === */
   * {
     max-width: 100vw !important;
   }
+
+  .sim-ui, .sim-root, .sim-container {
+    overflow-x: hidden !important;
+  }
 }
 
-/* === 超小屏幕 === */
+/* === 超小屏幕（iPhone SE等） === */
 @media (max-width: 375px) {
   html {
     font-size: 12px !important;
   }
 
-  .nav-tabs .nav-link {
-    font-size: 0.65rem !important;
-    padding: 0.25rem 0.35rem !important;
-  }
-  
-  .gear-picker-slot {
-    padding: 1px !important;
+  .item-picker-root .item-picker-icon {
+    width: 28px !important;
+    height: 28px !important;
   }
 
-  .btn {
-    font-size: 0.7rem !important;
+  .item-picker-root .item-picker-name,
+  .item-picker-root .dropdown-picker-button {
+    font-size: 11px !important;
+  }
+
+  .navbar-brand {
+    font-size: 0.75rem !important;
+  }
+
+  .sim-tabs .nav-link {
+    padding: 4px 6px !important;
+    font-size: 0.65rem !important;
   }
 }
 
-/* === 安全区域（刘海屏）=== */
+/* === 安全区域（刘海屏/底部横条） === */
 @supports (padding: env(safe-area-inset-top)) {
   .navbar {
-    padding-top: env(safe-area-inset-top) !important;
+    padding-top: calc(2px + env(safe-area-inset-top)) !important;
   }
-  
+
   .simulate-button-root {
-    padding-bottom: calc(0.4rem + env(safe-area-inset-bottom)) !important;
+    padding-bottom: calc(6px + env(safe-area-inset-bottom)) !important;
+  }
+}
+
+/* === PWA独立模式 === */
+@media (display-mode: standalone) {
+  .navbar {
+    padding-top: calc(2px + env(safe-area-inset-top, 0px)) !important;
+  }
+
+  body {
+    padding-top: env(safe-area-inset-top, 0px) !important;
   }
 }
 
@@ -304,12 +427,6 @@
 @media (prefers-color-scheme: dark) {
   body {
     background-color: #0d1117 !important;
-  }
-}
-
-/* === PWA standalone模式 === */
-@media (display-mode: standalone) {
-  .navbar {
-    padding-top: env(safe-area-inset-top, 0) !important;
+    color: #e6edf3 !important;
   }
 }
