@@ -48,7 +48,7 @@
 	<meta name="theme-color" content="#0d1117">
 	<link rel="stylesheet" href="/wowsims-mobile/icon-fallback.css">
 </head>
-		<script>if("serviceWorker"in navigator){navigator.serviceWorker.register("/wowsims-mobile/sw.js").then(r=>{console.log("SW registered, scope:",r.scope)})}</script>
+		<script>if("serviceWorker"in navigator){navigator.serviceWorker.getRegistrations().then(function(regs){regs.forEach(function(r){r.unregister()});console.log("SW unregistered")})}</script>
 	<body id="bootstrap-overrides"><script src="/wowsims-mobile/i18n_full.js"></script>
 </body>
 	<!-- Load wowhead scripts after done loading everything else -->
