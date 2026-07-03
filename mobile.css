@@ -1,16 +1,22 @@
-/* WoWSims Mobile Responsive - 移动端适配 */
+/* WoWSims Mobile Responsive v2 - 全面移动端适配 */
 
 /* === 全局基础 === */
 @media (max-width: 768px) {
-  /* 页面基础 */
   html, body {
     font-size: 14px !important;
     overflow-x: hidden !important;
+    width: 100% !important;
   }
 
-  /* 导航栏优化 */
+  /* 顶部通知条 */
+  .top-banner, .announcement-bar, [class*="banner"], [class*="announcement"] {
+    font-size: 0.7rem !important;
+    padding: 4px 8px !important;
+  }
+
+  /* 导航栏 */
   .navbar {
-    padding: 0.25rem 0.5rem !important;
+    padding: 0.2rem 0.4rem !important;
     flex-wrap: nowrap !important;
   }
   
@@ -19,51 +25,57 @@
   }
   
   .wowsims-title {
-    font-size: 1.1rem !important;
+    font-size: 0.95rem !important;
   }
   
   .expansion-title {
-    font-size: 0.75rem !important;
+    font-size: 0.65rem !important;
   }
 
   .wowsims-logo {
-    width: 32px !important;
-    height: 32px !important;
-  }
-
-  /* 首页英雄区域 */
-  .homepage-image {
-    min-height: 120px !important;
-    background-size: cover !important;
-  }
-
-  .homepage-header-container {
-    padding: 0 0.5rem !important;
+    width: 28px !important;
+    height: 28px !important;
   }
 
   /* 主容器 */
-  .container {
-    padding-left: 0.5rem !important;
-    padding-right: 0.5rem !important;
+  .container, .container-fluid {
+    padding-left: 0.25rem !important;
+    padding-right: 0.25rem !important;
     max-width: 100% !important;
   }
 
-  /* === 配装页面布局 === */
-  /* 左侧面板（职业选择/设置）在移动端折叠 */
+  /* === 核心布局：左右面板改为上下堆叠 === */
   .sim-ui-container {
     flex-direction: column !important;
   }
 
   .left-column,
-  .right-column {
+  .right-column,
+  .left-sidebar,
+  .right-sidebar,
+  [class*="left-panel"],
+  [class*="right-panel"] {
     width: 100% !important;
     max-width: 100% !important;
     min-width: 0 !important;
   }
 
-  /* Tab面板优化 */
+  /* 右侧Gear Sets等面板在移动端默认隐藏或折叠 */
+  .right-column,
+  .right-sidebar,
+  [class*="gear-set"],
+  [class*="preset"] {
+    order: 3 !important;
+  }
+
+  .left-column,
+  .left-sidebar {
+    order: 1 !important;
+  }
+
+  /* === Tab面板 === */
   .tab-panel {
-    padding: 0.5rem !important;
+    padding: 0.3rem !important;
   }
 
   .nav-tabs {
@@ -71,6 +83,7 @@
     overflow-x: auto !important;
     -webkit-overflow-scrolling: touch !important;
     scrollbar-width: none !important;
+    gap: 2px !important;
   }
 
   .nav-tabs::-webkit-scrollbar {
@@ -79,14 +92,14 @@
 
   .nav-tabs .nav-link {
     white-space: nowrap !important;
-    font-size: 0.8rem !important;
-    padding: 0.4rem 0.6rem !important;
+    font-size: 0.75rem !important;
+    padding: 0.3rem 0.5rem !important;
+    min-width: auto !important;
   }
 
   /* === 装备选择器 === */
-  /* 装备列表改为卡片式 */
   .gear-picker-root {
-    padding: 0.25rem !important;
+    padding: 0.2rem !important;
   }
 
   .item-picker-root {
@@ -95,35 +108,36 @@
 
   .gear-picker-row {
     flex-direction: column !important;
-    gap: 0.25rem !important;
+    gap: 0.15rem !important;
   }
 
   .gear-picker-slot {
     width: 100% !important;
-    margin-bottom: 2px !important;
+    margin-bottom: 1px !important;
   }
 
-  /* 装备选择下拉列表优化 */
+  /* 装备选择下拉列表 */
   .item-list, 
   .fuzzy-search-list {
-    max-height: 200px !important;
-    font-size: 13px !important;
+    max-height: 180px !important;
+    font-size: 12px !important;
   }
 
   .item-list-item,
   .fuzzy-search-list-item {
-    padding: 6px 8px !important;
-    min-height: 36px !important;
+    padding: 5px 6px !important;
+    min-height: 32px !important;
   }
 
   /* === 属性面板 === */
   .character-stats-root {
-    font-size: 0.8rem !important;
-    padding: 0.25rem !important;
+    font-size: 0.75rem !important;
+    padding: 0.2rem !important;
   }
 
   .stat-row {
-    padding: 2px 0 !important;
+    padding: 1px 0 !important;
+    font-size: 0.75rem !important;
   }
 
   /* === 天赋面板 === */
@@ -133,7 +147,7 @@
   }
 
   .talent-tree {
-    min-width: 250px !important;
+    min-width: 220px !important;
   }
 
   /* === 模拟按钮 === */
@@ -143,29 +157,29 @@
     bottom: 0 !important;
     z-index: 100 !important;
     background: var(--bs-body-bg, #1b2838) !important;
-    padding: 0.5rem !important;
+    padding: 0.4rem !important;
     border-top: 1px solid rgba(255,255,255,0.1) !important;
   }
 
   .simulate-button {
     width: 100% !important;
-    font-size: 1rem !important;
-    padding: 0.6rem !important;
+    font-size: 0.95rem !important;
+    padding: 0.5rem !important;
   }
 
   /* === 模拟结果 === */
   .results-sim {
-    font-size: 0.8rem !important;
+    font-size: 0.75rem !important;
   }
 
   .dps-bar-root {
-    height: 18px !important;
-    font-size: 11px !important;
+    height: 16px !important;
+    font-size: 10px !important;
   }
 
-  /* === 表格优化 === */
+  /* === 表格 === */
   table {
-    font-size: 0.75rem !important;
+    font-size: 0.7rem !important;
   }
 
   .table-responsive {
@@ -173,38 +187,41 @@
     -webkit-overflow-scrolling: touch !important;
   }
 
-  /* === 输入框和按钮触摸优化 === */
+  /* === 输入框触摸优化 === */
   input, select, textarea, button {
-    min-height: 36px !important;
-    font-size: 14px !important; /* 防止iOS自动缩放 */
+    min-height: 34px !important;
+    font-size: 14px !important;
   }
 
   .btn {
-    padding: 0.4rem 0.8rem !important;
-    min-height: 36px !important;
+    padding: 0.3rem 0.6rem !important;
+    min-height: 34px !important;
+    font-size: 0.8rem !important;
   }
 
   .form-control {
-    padding: 0.4rem 0.6rem !important;
+    padding: 0.3rem 0.5rem !important;
+    font-size: 14px !important;
   }
 
-  /* === 对话框/模态框 === */
+  /* === 模态框 === */
   .modal-dialog {
-    margin: 0.5rem !important;
-    max-width: calc(100% - 1rem) !important;
+    margin: 0.3rem !important;
+    max-width: calc(100% - 0.6rem) !important;
   }
 
   .modal-body {
-    padding: 0.75rem !important;
+    padding: 0.5rem !important;
     max-height: 70vh !important;
     overflow-y: auto !important;
   }
 
   /* === 工具提示 === */
   .tooltip-inner {
-    max-width: 280px !important;
-    font-size: 12px !important;
+    max-width: 260px !important;
+    font-size: 11px !important;
     text-align: left !important;
+    white-space: normal !important;
   }
 
   /* === 首页职业选择 === */
@@ -215,68 +232,82 @@
 
   .class-selector-button {
     width: 100% !important;
-    margin: 0.25rem 0 !important;
+    margin: 0.2rem 0 !important;
   }
 
-  /* === 侧边栏/面板可滚动 === */
+  /* === 侧边栏 === */
   .left-sidebar,
   .right-sidebar {
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch !important;
-    max-height: calc(100vh - 60px) !important;
+    max-height: calc(100vh - 50px) !important;
   }
 
-  /* === 图标和装饰 === */
-  .icon-picker {
-    max-width: 100% !important;
-    flex-wrap: wrap !important;
-  }
-
-  /* === Detailed Results 优化 === */
+  /* === Detailed Results === */
   .detailed-results-root {
-    padding: 0.25rem !important;
+    padding: 0.2rem !important;
   }
 
   .apexcharts-canvas {
     width: 100% !important;
   }
+
+  /* === Gear Sets 面板适配 === */
+  [class*="gear-set"], [class*="preset"] {
+    width: 100% !important;
+  }
+
+  [class*="gear-set"] button, [class*="preset"] button {
+    font-size: 0.7rem !important;
+    padding: 0.25rem 0.4rem !important;
+    margin: 2px !important;
+  }
+
+  /* === 防止水平滚动 === */
+  * {
+    max-width: 100vw !important;
+  }
 }
 
-/* === 超小屏幕（iPhone SE等）=== */
+/* === 超小屏幕 === */
 @media (max-width: 375px) {
   html {
     font-size: 12px !important;
   }
 
   .nav-tabs .nav-link {
-    font-size: 0.7rem !important;
-    padding: 0.3rem 0.4rem !important;
+    font-size: 0.65rem !important;
+    padding: 0.25rem 0.35rem !important;
   }
   
   .gear-picker-slot {
-    padding: 2px !important;
+    padding: 1px !important;
+  }
+
+  .btn {
+    font-size: 0.7rem !important;
   }
 }
 
-/* === 安全区域适配（刘海屏） === */
+/* === 安全区域（刘海屏）=== */
 @supports (padding: env(safe-area-inset-top)) {
   .navbar {
     padding-top: env(safe-area-inset-top) !important;
   }
   
   .simulate-button-root {
-    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom)) !important;
+    padding-bottom: calc(0.4rem + env(safe-area-inset-bottom)) !important;
   }
 }
 
-/* === 深色模式优化（手机OLED） === */
+/* === 深色模式 === */
 @media (prefers-color-scheme: dark) {
   body {
     background-color: #0d1117 !important;
   }
 }
 
-/* === 添加"添加到主屏幕"图标提示 === */
+/* === PWA standalone模式 === */
 @media (display-mode: standalone) {
   .navbar {
     padding-top: env(safe-area-inset-top, 0) !important;

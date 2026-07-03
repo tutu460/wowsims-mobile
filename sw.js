@@ -1,4 +1,4 @@
-const CACHE_NAME = 'wowsims-v11';
+const CACHE_NAME = 'wowsims-v12';
 
 const CORE_ASSETS = [
   '/wowsims-mobile/',
@@ -33,7 +33,7 @@ self.addEventListener('install', event => {
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      console.log('[SW v10] Pre-caching core assets');
+      console.log('[SW v12] Pre-caching core assets');
       return cache.addAll(CORE_ASSETS).catch(err => {
         console.warn('[SW] Some core assets failed to cache:', err);
       });
@@ -41,11 +41,16 @@ self.addEventListener('install', event => {
   );
 });
 
-// Activate: clean ALL old caches
+// Activate: aggressively clean ALL old caches
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(keys.map(k => caches.delete(k)))
+      Promise.all(keys.map(k => {
+        if (k !== CACHE_NAME) {
+          console.log('[SW v12] Deleting old cache:', k);
+          return caches.delete(k);
+        }
+      }))
     ).then(() => self.clients.claim())
   );
 });
@@ -57,7 +62,29 @@ self.addEventListener('fetch', event => {
   // Only handle same-origin requests
   if (url.origin !== location.origin) return;
   
-  // Icon requests: network-first, then cache
+  // SVG icon requests → redirect to .jpg equivalent
+  if (url.pathname.match(/\/wowsims-mobile\/icons\/large\/.*\.svg$/)) {
+    const jpgUrl = url.pathname.replace(/\.svg$/, '.jpg');
+    const jpgRequest = new Request(jpgUrl, {
+      method: 'GET',
+      headers: event.request.headers
+    });
+    event.respondWith(
+      caches.match(jpgRequest).then(cached => {
+        if (cached) return cached;
+        return fetch(jpgRequest).then(response => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(jpgRequest, clone));
+          }
+          return response;
+        }).catch(() => caches.match(event.request));
+      })
+    );
+    return;
+  }
+  
+  // All icon requests: network-first, then cache
   if (url.pathname.match(/\/wowsims-mobile\/icons\//)) {
     event.respondWith(
       fetch(event.request).then(response => {
