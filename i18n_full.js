@@ -1,5 +1,6 @@
-// WoWSims i18n v3 - Full Chinese Translation + Icon Fix
-// Auto-generated: items=20734, spells=3233
+// WoWSims i18n v3 - Full Chinese Translation
+// Auto-generated: 20734 items, 3233 spells
+// Icons handled by Service Worker (local SVG -> wow.zamimg.com CDN)
 (function() {
 'use strict';
 
@@ -18,37 +19,25 @@ window.fetch = function(...args) {
                     const data = JSON.parse(text);
                     if (data.items) {
                         data.items = data.items.map(item => {
-                            const id = item.id;
-                            if (ITEM_NAMES[id]) {
-                                return {...item, name: ITEM_NAMES[id]};
-                            }
+                            if (ITEM_NAMES[item.id]) return Object.assign({}, item, {name: ITEM_NAMES[item.id]});
                             return item;
                         });
                     }
                     if (data.gems) {
                         data.gems = data.gems.map(gem => {
-                            const id = gem.id;
-                            if (ITEM_NAMES[id]) {
-                                return {...gem, name: ITEM_NAMES[id]};
-                            }
+                            if (ITEM_NAMES[gem.id]) return Object.assign({}, gem, {name: ITEM_NAMES[gem.id]});
                             return gem;
                         });
                     }
                     if (data.enchants) {
                         data.enchants = data.enchants.map(enc => {
-                            const sid = enc.spellId;
-                            if (SPELL_NAMES[sid]) {
-                                return {...enc, name: SPELL_NAMES[sid]};
-                            }
+                            if (SPELL_NAMES[enc.spellId]) return Object.assign({}, enc, {name: SPELL_NAMES[enc.spellId]});
                             return enc;
                         });
                     }
                     if (data.spellIcons) {
                         data.spellIcons = data.spellIcons.map(sp => {
-                            const id = sp.id;
-                            if (SPELL_NAMES[id]) {
-                                return {...sp, name: SPELL_NAMES[id]};
-                            }
+                            if (SPELL_NAMES[sp.id]) return Object.assign({}, sp, {name: SPELL_NAMES[sp.id]});
                             return sp;
                         });
                     }
@@ -68,126 +57,6 @@ window.fetch = function(...args) {
     });
 };
 
-// Also intercept XMLHttpRequest for older code paths
-const _origXHROpen = XMLHttpRequest.prototype.open;
-const _origXHRSend = XMLHttpRequest.prototype.send;
-XMLHttpRequest.prototype.open = function(method, url) {
-    this._i18n_url = url;
-    return _origXHROpen.apply(this, arguments);
-};
-XMLHttpRequest.prototype.send = function() {
-    if (this._i18n_url && (this._i18n_url.includes('db.json') || this._i18n_url.includes('leftover_db.json'))) {
-        this.addEventListener('readystatechange', function() {
-            if (this.readyState === 4 && this.status === 200) {
-                try {
-                    const data = JSON.parse(this.responseText);
-                    if (data.items) {
-                        data.items = data.items.map(item => {
-                            if (ITEM_NAMES[item.id]) return {...item, name: ITEM_NAMES[item.id]};
-                            return item;
-                        });
-                    }
-                    if (data.gems) {
-                        data.gems = data.gems.map(gem => {
-                            if (ITEM_NAMES[gem.id]) return {...gem, name: ITEM_NAMES[gem.id]};
-                            return gem;
-                        });
-                    }
-                    if (data.enchants) {
-                        data.enchants = data.enchants.map(enc => {
-                            if (SPELL_NAMES[enc.spellId]) return {...enc, name: SPELL_NAMES[enc.spellId]};
-                            return enc;
-                        });
-                    }
-                    if (data.spellIcons) {
-                        data.spellIcons = data.spellIcons.map(sp => {
-                            if (SPELL_NAMES[sp.id]) return {...sp, name: SPELL_NAMES[sp.id]};
-                            return sp;
-                        });
-                    }
-                    Object.defineProperty(this, 'responseText', { value: JSON.stringify(data), writable: false });
-                    Object.defineProperty(this, 'response', { value: JSON.stringify(data), writable: false });
-                } catch(e) {}
-            }
-        });
-    }
-    return _origXHRSend.apply(this, arguments);
-};
-
-// === ICON URL REWRITING (from v2) ===
-(function() {
-'use strict';
-
-const ICON_CDN = 'wow.zamimg.com';
-const LOCAL_BASE = '/wowsims-mobile/icons';
-
-// URL重写函数
-function rewriteIconUrl(url) {
-  if (!url || typeof url !== 'string') return url;
-  if (!url.includes(ICON_CDN)) return url;
-  
-  // 重写 wow icons: /images/wow/icons/{size}/{name}.jpg -> /icons/{size}/{name}.svg
-  url = url.replace(/https?:\/\/wow\.zamimg\.com\/images\/wow\/icons\/(large|medium|small)\/([^'"\\s)]+)\.jpg/g,
-    LOCAL_BASE + '/$1/$2.svg');
-  
-  // 重写 socket icons: /images/icons/socket-{type}.gif -> /icons/socket/socket-{type}.svg
-  url = url.replace(/https?:\/\/wow\.zamimg\.com\/images\/icons\/(socket-\w+)\.gif/g,
-    LOCAL_BASE + '/socket/$1.svg');
-  
-  // 重写 tooltips.js
-  url = url.replace(/https?:\/\/wow\.zamimg\.com\/js\/tooltips\.js/g, '');
-  
-  return url;
-}
-
-// 拦截 Element.setAttribute
-const origSetAttribute = Element.prototype.setAttribute;
-Element.prototype.setAttribute = function(name, value) {
-  if (typeof value === 'string' && (name === 'src' || name === 'href' || name === 'style')) {
-    value = rewriteIconUrl(value);
-  }
-  return origSetAttribute.call(this, name, value);
-};
-
-// 拦截 CSSStyleDeclaration.setProperty
-const origSetProp = CSSStyleDeclaration.prototype.setProperty;
-CSSStyleDeclaration.prototype.setProperty = function(prop, value, priority) {
-  if (typeof value === 'string') {
-    value = rewriteIconUrl(value);
-  }
-  return origSetProp.call(this, prop, value, priority);
-};
-
-// 拦截图片创建
-const origImgSrc = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'src');
-if (origImgSrc && origImgSrc.set) {
-  Object.defineProperty(HTMLImageElement.prototype, 'src', {
-    get: origImgSrc.get,
-    set: function(val) {
-      origImgSrc.set.call(this, rewriteIconUrl(val));
-    },
-    configurable: true
-  });
-}
-
-// 监听已加载的图片，修复失败的图标
-document.addEventListener('error', function(e) {
-  if (e.target.tagName === 'IMG') {
-    const src = e.target.getAttribute('src') || '';
-    if (src.includes(ICON_CDN)) {
-      const newUrl = rewriteIconUrl(src);
-      if (newUrl !== src) {
-        e.target.setAttribute('src', newUrl);
-      } else {
-        // 最终回退：显示占位图
-        e.target.style.opacity = '0.3';
-        e.target.style.backgroundColor = 'rgba(100,100,120,0.5)';
-      }
-    }
-  }
-}, true);
-
-// ==================== 中文翻译 ====================
 const TRANSLATIONS = {
   // 标签页
   'Import': '导入', 'Character': '角色', 'Gear': '装备',
@@ -313,6 +182,8 @@ const TRANSLATIONS = {
   'Sort By': '排序方式', 'Ascending': '升序', 'Descending': '降序',
 };
 
+
+
 // 翻译DOM节点
 function translateNode(node) {
   if (node.nodeType === Node.TEXT_NODE) {
@@ -321,30 +192,26 @@ function translateNode(node) {
       node.textContent = TRANSLATIONS[text];
     }
   } else if (node.nodeType === Node.ELEMENT_NODE) {
-    // 翻译属性
     for (const attr of ['title', 'placeholder', 'aria-label', 'alt']) {
       if (node[attr] && TRANSLATIONS[node[attr]]) {
         node[attr] = TRANSLATIONS[node[attr]];
       }
     }
-    // 翻译子节点
     for (const child of node.childNodes) {
       translateNode(child);
     }
   }
 }
 
-// 初始翻译（延迟执行，等待JS渲染完成）
 function doTranslation() {
   translateNode(document.body);
 }
 
-// 使用MutationObserver持续翻译新增内容
+// MutationObserver for dynamic content
 let translateTimeout = null;
 const observer = new MutationObserver(function(mutations) {
-  // 防抖：合并短时间内多次DOM变化
   if (translateTimeout) clearTimeout(translateTimeout);
-  translateTimeout = setTimeout(() => {
+  translateTimeout = setTimeout(function() {
     for (const m of mutations) {
       for (const node of m.addedNodes) {
         translateNode(node);
@@ -353,9 +220,8 @@ const observer = new MutationObserver(function(mutations) {
   }, 100);
 });
 
-// 启动
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', function() {
     setTimeout(doTranslation, 300);
     setTimeout(doTranslation, 1000);
     setTimeout(doTranslation, 2500);
@@ -370,9 +236,5 @@ if (document.readyState === 'loading') {
   observer.observe(document.body, { childList: true, subtree: true, characterData: true });
 }
 
-})();
-
-
-// Patch: update version log
-console.log('[WoWSims Mobile] 完整中文翻译 v3 已加载 (20734 items, 3233 spells)');
+console.log('[WoWSims Mobile] 完整中文翻译 v3 已加载');
 })();

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'wowsims-v8';
+const CACHE_NAME = 'wowsims-v9';
 
 const CORE_ASSETS = [
   '/wowsims-mobile/',
@@ -23,7 +23,7 @@ const CORE_ASSETS = [
   '/wowsims-mobile/assets/favicon_io/android-chrome-512x512.png'
 ];
 
-// Install: pre-cache small core assets only (NOT the 40MB WASM)
+// Install: pre-cache small core assets only
 self.addEventListener('install', event => {
   self.skipWaiting();
   event.waitUntil(
@@ -45,12 +45,34 @@ self.addEventListener('activate', event => {
   );
 });
 
-// Fetch: network-first for everything, simple fallback
+// Fetch: intercept local icon requests -> redirect to CDN
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
+  
+  // Rewrite local icon paths to wow.zamimg.com CDN
+  if (url.origin === location.origin) {
+    const iconMatch = url.pathname.match(/\/wowsims-mobile\/icons\/(large|medium|small)\/(.+)\.svg$/);
+    if (iconMatch) {
+      const size = iconMatch[1];
+      const name = iconMatch[2];
+      const cdnUrl = `https://wow.zamimg.com/images/wow/icons/${size}/${name}.jpg`;
+      event.respondWith(fetch(cdnUrl).catch(() => fetch(event.request)));
+      return;
+    }
+    
+    const socketMatch = url.pathname.match(/\/wowsims-mobile\/icons\/socket\/(socket-\w+)\.svg$/);
+    if (socketMatch) {
+      const name = socketMatch[1];
+      const cdnUrl = `https://wow.zamimg.com/images/icons/${name}.gif`;
+      event.respondWith(fetch(cdnUrl).catch(() => fetch(event.request)));
+      return;
+    }
+  }
+  
+  // For non-origin requests, pass through
   if (url.origin !== location.origin) return;
   
-  // Network-first for all requests
+  // Network-first for all other requests
   event.respondWith(
     fetch(event.request).then(response => {
       if (response.ok) {
